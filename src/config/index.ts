@@ -20,7 +20,7 @@ export const config = {
     from: process.env.EMAIL_FROM ?? 'noreply@mousepad-store.com',
   },
   urls: {
-    frontend: process.env.FRONTEND_URL ?? 'http://localhost:5173',
-    admin: process.env.ADMIN_URL ?? 'http://localhost:5174',
+    frontend: process.env.FRONTEND_URL ?? 'http://localhost:4000',
+    admin: process.env.ADMIN_URL ?? 'http://localhost:5000',
   },
 } as const;
