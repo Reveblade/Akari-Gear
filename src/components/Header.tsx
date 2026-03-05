@@ -91,7 +91,7 @@ export function Header() {
                   <div className="absolute right-0 mt-1 w-52 rounded-lg border border-surface-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
                     {user.role === 'admin' && (
                       <a
-                        href={import.meta.env.VITE_ADMIN_URL ?? 'http://localhost:5174'}
+                        href={import.meta.env.VITE_ADMIN_URL ?? 'http://localhost:5000'}
                         className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50 dark:text-zinc-300 dark:hover:bg-zinc-700"
                       >
                         Admin Panel
