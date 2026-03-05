@@ -4,6 +4,88 @@ Mail server with webmail (Roundcube) for store owners. Send and receive email.
 
 **Docs:** [mailu.io](https://mailu.io/)
 
+## VM setup (one-time)
+
+Use this when provisioning a new VM or redoing setup from scratch.
+
+### 1. Provision VM
+
+- **Provider:** DigitalOcean, Hetzner, etc.
+- **OS:** Ubuntu 22.04 LTS (or Debian)
+- **Specs:** 1GB RAM minimum, 2–3GB recommended
+- **Firewall:** Open ports 25, 80, 443, 465, 587, 993, 995
+
+### 2. Install Docker
+
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+# Log out and back in for group to apply
+```
+
+### 3. Clone repo and configure
+
+```bash
+cd ~
+git clone <your-repo-url> mail
+cd mail
+cp mailu.env .env
+```
+
+Edit `.env`:
+
+- `SECRET_KEY` — `pwgen 16 1` (or random 16+ chars)
+- `BIND_ADDRESS4` — VM public IP
+- `TLS_FLAVOR=letsencrypt` (after DNS is ready)
+- `INITIAL_ADMIN_PW` — strong password
+
+### 4. DNS (before TLS)
+
+In your DNS provider (e.g. GoDaddy):
+
+- **A:** `mail` → VM public IP
+- **MX:** `@` → `mail.akarigear.com` (priority 10)
+
+### 5. SSH key for GitHub Actions
+
+On your **local machine**, generate a key pair (if needed):
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions-mailu" -f ~/.ssh/mailu_deploy -N ""
+```
+
+Add the **public** key to the VM:
+
+```bash
+# On VM: append pubkey to authorized_keys
+mkdir -p ~/.ssh
+echo "ssh-ed25519 AAAA... github-actions-mailu" >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+Add the **private** key to GitHub: repo → Settings → Secrets and variables → Actions.
+
+### 6. GitHub Actions secrets
+
+| Secret          | Value                          |
+|-----------------|--------------------------------|
+| `DEPLOY_HOST`   | VM IP or hostname (e.g. `mail.akarigear.com`) |
+| `DEPLOY_USER`   | SSH user (e.g. `root` or `debian`) |
+| `SSH_PRIVATE_KEY` | Full private key (including `-----BEGIN ... -----`) |
+| `DEPLOY_PATH`   | (optional) Path on VM, default `~/mail` |
+
+### 7. First deploy
+
+```bash
+cd ~/mail
+./deploy.sh
+```
+
+Or push to `main` — GitHub Actions will SSH in, `git pull`, and run `./deploy.sh`.
+
+---
+
 ## Go live (production)
 
 1. **Get a VPS** — Linux server with public IP (e.g. DigitalOcean, Hetzner, 1GB RAM min)
@@ -20,11 +102,7 @@ Mail server with webmail (Roundcube) for store owners. Send and receive email.
 6. **Deploy** — `./deploy.sh` (Linux) or `docker compose up -d`
 7. **Access** — https://mail.akarigear.com/admin (after DNS propagates)
 
-**Auto-deploy (GitHub Actions):** Pushes to `main` trigger deployment. In the repo → Settings → Secrets and variables → Actions, add:
-- `DEPLOY_HOST` — VM IP or hostname (e.g. `mail.akarigear.com`)
-- `DEPLOY_USER` — SSH user (e.g. `debian` or your username)
-- `SSH_PRIVATE_KEY` — Private key for SSH (paste the full key including `-----BEGIN ... -----`)
-- `DEPLOY_PATH` — (optional) Path to repo on VM, default `~/mail`
+**Auto-deploy (GitHub Actions):** Pushes to `main` trigger deployment. See [VM setup](#vm-setup-one-time) for secrets and SSH key setup.
 
 **Windows (local testing):** Run `.\deploy.ps1` — port 25 may be blocked by ISP.
 
