@@ -5,6 +5,8 @@ import { Verify2FAPage } from './pages/Verify2FAPage'
 import { AdminDashboard } from './pages/AdminDashboard'
 import { AdminProductsPage } from './pages/AdminProductsPage'
 import { AdminProductFormPage } from './pages/AdminProductFormPage'
+import { AdminOrdersPage } from './pages/AdminOrdersPage'
+import { AdminOrderDetailPage } from './pages/AdminOrderDetailPage'
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
         <Route path="products" element={<AdminProductsPage />} />
         <Route path="products/new" element={<AdminProductFormPage />} />
         <Route path="products/:id/edit" element={<AdminProductFormPage />} />
+        <Route path="orders" element={<AdminOrdersPage />} />
+        <Route path="orders/:id" element={<AdminOrderDetailPage />} />
       </Route>
     </Routes>
   )

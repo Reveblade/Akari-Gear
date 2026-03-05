@@ -78,3 +78,40 @@ export interface Login2FAResponse {
   email: string
   message: string
 }
+
+export interface OrderAddress {
+  fullName: string
+  phone: string
+  city: string
+  district: string
+  neighborhood: string
+  address: string
+  postalCode?: string
+}
+
+export interface OrderItem {
+  product: string | { _id: string; name: string; slug: string; images?: string[] }
+  name: string
+  slug: string
+  quantity: number
+  unitPriceUsd: number
+  unitPriceTry: number
+  subtotalTry: number
+}
+
+export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled'
+
+export interface Order {
+  _id: string
+  user: string | { _id: string; email: string }
+  address: OrderAddress
+  items: OrderItem[]
+  subtotalTry: number
+  shippingCostTry: number
+  totalTry: number
+  status: OrderStatus
+  exchangeRateUsdToTry: number
+  exchangeRateDate: string
+  createdAt: string
+  updatedAt: string
+}

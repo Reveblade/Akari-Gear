@@ -1,19 +1,38 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import type { Product } from '../types'
+import type { Product, Category } from '../types'
 
 export function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [featuredFilter, setFeaturedFilter] = useState(false)
 
   useEffect(() => {
+    api.admin.categories.list().then((res) => setCategories(res.categories)).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    const params: Parameters<typeof api.admin.products.list>[0] = {
+      limit: 100,
+      active: statusFilter === 'all' ? false : undefined,
+      inactive: statusFilter === 'inactive',
+      search: search || undefined,
+      category: categoryFilter || undefined,
+      featured: featuredFilter || undefined,
+    }
     api.admin.products
-      .list({ limit: 50, active: false })
+      .list(params)
       .then((res) => setProducts(res.products))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false))
-  }, [])
+  }, [search, categoryFilter, statusFilter, featuredFilter])
 
   async function handleDelete(id: string, name: string) {
     if (!confirm(`"${name}" ürününü silmek istediğinize emin misiniz?`)) return
@@ -25,16 +44,92 @@ export function AdminProductsPage() {
     }
   }
 
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    setSearch(searchInput.trim())
+  }
+
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-display text-2xl font-bold text-white">Ürünler</h1>
         <Link
           to="/products/new"
-          className="rounded-lg bg-primary-500 px-4 py-2 font-medium text-white hover:bg-primary-600"
+          className="shrink-0 rounded-lg bg-primary-500 px-4 py-2 font-medium text-white hover:bg-primary-600"
         >
           + Yeni Ürün
         </Link>
+      </div>
+
+      {/* Arama ve Filtreler */}
+      <div className="mb-6 flex flex-col gap-4 rounded-xl border border-zinc-600 bg-zinc-800 p-4">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <input
+            type="search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Ürün adı veya açıklamada ara..."
+            className="flex-1 rounded-lg border border-zinc-600 bg-zinc-700 px-4 py-2 text-white placeholder-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          />
+          <button
+            type="submit"
+            className="rounded-lg bg-primary-500 px-4 py-2 font-medium text-white hover:bg-primary-600"
+          >
+            Ara
+          </button>
+        </form>
+        <div className="flex flex-wrap gap-4">
+          <div>
+            <label className="mb-1 block text-xs text-zinc-400">Kategori</label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="rounded-lg border border-zinc-600 bg-zinc-700 px-3 py-2 text-sm text-white focus:border-primary-500 focus:outline-none"
+            >
+              <option value="">Tümü</option>
+              {categories.map((c) => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-zinc-400">Durum</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+              className="rounded-lg border border-zinc-600 bg-zinc-700 px-3 py-2 text-sm text-white focus:border-primary-500 focus:outline-none"
+            >
+              <option value="all">Tümü</option>
+              <option value="active">Aktif</option>
+              <option value="inactive">Pasif</option>
+            </select>
+          </div>
+          <div className="flex items-end">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={featuredFilter}
+                onChange={(e) => setFeaturedFilter(e.target.checked)}
+                className="rounded border-zinc-600 bg-zinc-700 text-primary-500 focus:ring-primary-500"
+              />
+              <span className="text-sm text-zinc-300">Öne çıkan</span>
+            </label>
+          </div>
+          {(search || categoryFilter || statusFilter !== 'all' || featuredFilter) && (
+            <button
+              onClick={() => {
+                setSearch('')
+                setSearchInput('')
+                setCategoryFilter('')
+                setStatusFilter('all')
+                setFeaturedFilter(false)
+              }}
+              className="rounded-lg border border-zinc-600 px-3 py-2 text-sm text-zinc-400 hover:bg-zinc-700 hover:text-white"
+            >
+              Filtreleri temizle
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (

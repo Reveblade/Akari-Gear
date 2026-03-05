@@ -59,13 +59,21 @@ export const api = {
         page?: number
         limit?: number
         category?: string
+        subcategory?: string
+        search?: string
+        featured?: boolean
         active?: boolean
+        inactive?: boolean
       }) => {
         const search = new URLSearchParams()
         if (params?.page) search.set('page', String(params.page))
         if (params?.limit) search.set('limit', String(params.limit))
         if (params?.category) search.set('category', params.category)
+        if (params?.subcategory) search.set('subcategory', params.subcategory)
+        if (params?.search) search.set('search', params.search)
+        if (params?.featured) search.set('featured', 'true')
         if (params?.active === false) search.set('active', 'false')
+        if (params?.inactive) search.set('inactive', 'true')
         const qs = search.toString()
         return fetchApi<{
           products: import('../types').Product[]
@@ -90,6 +98,19 @@ export const api = {
     categories: {
       list: () =>
         fetchApi<import('../types').CategoriesResponse>('/admin/categories'),
+    },
+    orders: {
+      list: (params?: { status?: string }) => {
+        const qs = params?.status ? `?status=${params.status}` : ''
+        return fetchApi<{ orders: import('../types').Order[] }>(`/admin/orders${qs}`)
+      },
+      get: (id: string) =>
+        fetchApi<{ order: import('../types').Order }>(`/admin/orders/${id}`),
+      updateStatus: (id: string, status: string) =>
+        fetchApi<{ order: import('../types').Order }>(`/admin/orders/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status }),
+        }),
     },
     uploadImage: async (file: File): Promise<{ url: string }> => {
       const token = getStoredToken()
