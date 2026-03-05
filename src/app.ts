@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
+import { config } from './config/index.js';
 import authRoutes from './routes/authRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -12,13 +14,35 @@ import adminRoutes from './routes/admin/index.js';
 
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+const allowedOrigins = [config.urls.frontend, config.urls.admin].filter(Boolean);
+
+app.use(
+  cors({
+    origin:
+      allowedOrigins.length > 0
+        ? (origin, cb) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+              cb(null, true);
+            } else {
+              cb(null, false);
+            }
+          }
+        : true,
+    credentials: true,
+  })
+);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { error: 'Çok fazla istek. Lütfen 15 dakika sonra tekrar deneyin.' },
+});
 app.use(express.json());
 app.use(cookieParser());
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/categories', categoryRoutes);

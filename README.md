@@ -118,7 +118,14 @@ API: `http://localhost:3000`
 | PUT | `/api/admin/products/:id` | Update product |
 | DELETE | `/api/admin/products/:id` | Delete product |
 | POST | `/api/admin/admins` | Create admin (body: `{ email, password }`) |
+| POST | `/api/admin/upload` | Upload product image (form-data, field: `image`) |
 | POST | `/api/exchange-rate/fetch` | Fetch rate from TCMB (admin only) |
+
+## Uploads
+
+Product images are stored in `uploads/products/` (gitignored). The folder is created automatically on first upload.
+
+**Production:** For deployment, use a persistent volume for `uploads/` or switch to cloud storage (S3, Cloudinary). Otherwise uploads are lost on container/server restart.
 
 ## Project Structure
 

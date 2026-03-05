@@ -12,6 +12,9 @@ async function start(): Promise<void> {
 
     app.listen(config.port, () => {
       console.log(`Server running on http://localhost:${config.port}`);
+      if (config.env === 'development') {
+        console.log(`Email links: reset/verify → ${config.urls.frontend}`);
+      }
     });
   } catch (err) {
     console.error('Failed to start:', err);

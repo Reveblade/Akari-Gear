@@ -3,3 +3,6 @@ dist/
 .env
 *.log
 .DS_Store
+
+# Uploaded files (use S3/Cloudinary or persistent volume in production)
+uploads/
