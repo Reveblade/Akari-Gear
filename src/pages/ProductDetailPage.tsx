@@ -52,7 +52,7 @@ export function ProductDetailPage() {
 
   const price = product.priceTry != null
     ? `₺${product.priceTry.toLocaleString()}`
-    : `₺${(product.price * 34.5).toLocaleString()}`
+    : null
 
   const categoryName = typeof product.category === 'object' && product.category?.name
     ? product.category.name
@@ -83,7 +83,11 @@ export function ProductDetailPage() {
           <p className="mt-4 text-surface-500 dark:text-zinc-400">{product.description}</p>
 
           <div className="mt-6">
-            <span className="text-2xl font-bold text-primary-600">{price}</span>
+            {price != null ? (
+              <span className="text-2xl font-bold text-primary-600">{price}</span>
+            ) : (
+              <span className="text-2xl font-bold text-surface-400">—</span>
+            )}
           </div>
 
           <p className="mt-4 text-sm text-surface-400 dark:text-zinc-500">

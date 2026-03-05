@@ -17,7 +17,7 @@ export function ProductCard({ product, compact }: ProductCardProps) {
 
   const price = product.priceTry != null
     ? `₺${product.priceTry.toLocaleString()}`
-    : `₺${(product.price * 34.5).toLocaleString()}`
+    : null
 
   const categoryName = typeof product.category === 'object' && product.category?.name
     ? product.category.name
@@ -58,7 +58,11 @@ export function ProductCard({ product, compact }: ProductCardProps) {
           <p className="mt-1 line-clamp-2 text-sm text-surface-400 dark:text-zinc-500">{product.description}</p>
         )}
         <div className={`flex items-center justify-between gap-2 ${compact ? 'mt-2' : 'mt-3'}`}>
-          <p className={`font-semibold text-primary-600 ${compact ? 'text-sm' : ''}`}>{price}</p>
+          {price != null ? (
+            <p className={`font-semibold text-primary-600 ${compact ? 'text-sm' : ''}`}>{price}</p>
+          ) : (
+            <p className={`font-semibold text-surface-400 ${compact ? 'text-sm' : ''}`}>—</p>
+          )}
           <button
             onClick={handleAddToCart}
             disabled={product.stock === 0 || adding}

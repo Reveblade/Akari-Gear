@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <Link to="/" className="font-display text-lg font-semibold text-primary-600 dark:text-primary-400">
-              Mousepad Mağaza
+              Akari Gear
             </Link>
             <p className="mt-2 text-sm text-surface-400">
               Oyun ve verimlilik için premium mousepad'ler.
@@ -39,7 +39,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t border-surface-200 pt-8 text-center text-sm text-surface-400 dark:border-zinc-700 dark:text-zinc-500">
-          © {new Date().getFullYear()} Mousepad Mağaza. Tüm hakları saklıdır.
+          © {new Date().getFullYear()} Akari Gear. Tüm hakları saklıdır.
         </div>
       </div>
     </footer>

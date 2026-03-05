@@ -15,24 +15,31 @@ import { OrderDetailPage } from './pages/OrderDetailPage'
 
 export default function App() {
   return (
-    <div className="flex min-h-screen flex-col bg-surface-50 dark:bg-zinc-900">
-      <Header />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/products/:slug" element={<ProductDetailPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route path="/verify-2fa" element={<Verify2FAPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/orders/:orderId" element={<OrderDetailPage />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <Routes>
+      <Route
+        path="*"
+        element={
+          <div className="flex min-h-screen flex-col bg-surface-50 dark:bg-zinc-900">
+            <Header />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/products/:slug" element={<ProductDetailPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+                <Route path="/verify-2fa" element={<Verify2FAPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        }
+      />
+    </Routes>
   )
 }

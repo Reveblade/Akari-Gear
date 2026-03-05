@@ -88,8 +88,8 @@ export function CartPage() {
   }
 
   const total = items.reduce((sum, i) => {
-    const p = i.product as { price?: number; priceTry?: number }
-    const price = p.priceTry ?? p.price ?? 0
+    const p = i.product as { priceTry?: number }
+    const price = p.priceTry ?? 0
     return sum + price * i.quantity
   }, 0)
 
@@ -107,11 +107,10 @@ export function CartPage() {
               _id: string
               name: string
               slug: string
-              price?: number
               priceTry?: number
               images?: string[]
             }
-            const price = p.priceTry ?? p.price ?? 0
+            const price = p.priceTry ?? 0
             const subtotal = price * item.quantity
             const imgUrl = getProductImageUrl(p.images)
 
@@ -147,15 +146,40 @@ export function CartPage() {
                     ₺{price.toLocaleString()} x {item.quantity} = ₺{subtotal.toLocaleString()}
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <select
-                      value={item.quantity}
-                      onChange={(e) => updateQuantity(p._id, Number(e.target.value))}
-                      className="rounded-lg border border-surface-200 px-3 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                        <option key={n} value={n}>{n}</option>
-                      ))}
-                    </select>
+                    <div className="flex items-center rounded-lg border border-surface-200 dark:border-zinc-600">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(p._id, Math.max(1, item.quantity - 1))}
+                        disabled={item.quantity <= 1}
+                        className="flex h-9 w-9 items-center justify-center rounded-l-lg text-surface-600 transition hover:bg-surface-100 disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                        aria-label="Azalt"
+                      >
+                        −
+                      </button>
+                      <select
+                        value={item.quantity}
+                        onChange={(e) => updateQuantity(p._id, Number(e.target.value))}
+                        className="h-9 min-w-[3rem] border-0 border-x border-surface-200 bg-transparent px-2 text-center text-sm focus:outline-none focus:ring-0 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100"
+                      >
+                        {(() => {
+                          const opts = [1, 2, 3, 5, 10, 20, 30, 40, 50]
+                          const options = opts.includes(item.quantity)
+                            ? opts
+                            : [...opts, item.quantity].sort((a, b) => a - b)
+                          return options.map((n) => (
+                            <option key={n} value={n}>{n}</option>
+                          ))
+                        })()}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(p._id, item.quantity + 1)}
+                        className="flex h-9 w-9 items-center justify-center rounded-r-lg text-surface-600 transition hover:bg-surface-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                        aria-label="Artır"
+                      >
+                        +
+                      </button>
+                    </div>
                     <button
                       onClick={() => removeFromCart(p._id)}
                       className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/30"

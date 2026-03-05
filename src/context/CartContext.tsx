@@ -41,9 +41,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [refreshCart])
 
   const addToCart = useCallback(async (productId: string, quantity = 1) => {
-    const { cart } = await api.cart.addItem(productId, quantity)
-    setItems(cart.items ?? [])
-  }, [])
+    await api.cart.addItem(productId, quantity)
+    await refreshCart()
+  }, [refreshCart])
 
   const removeFromCart = useCallback(async (productId: string) => {
     await api.cart.removeItem(productId)

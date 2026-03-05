@@ -12,7 +12,7 @@ const HERO_SLIDES = [
     cta: 'Alışverişe Başla',
   },
   {
-    title: 'Premium Malzemeler',
+    title: 'Premium Hammadde Seçimi',
     subtitle: 'Dayanıklı yüzeyler. Pürüzsüz kayma, tutarlı takip.',
     cta: 'Ürünleri Keşfet',
   },
@@ -24,10 +24,10 @@ const HERO_SLIDES = [
 ]
 
 const FEATURES = [
-  { icon: '⚡', title: 'Hızlı Kargo', desc: '50$ üzeri siparişlerde ücretsiz teslimat' },
-  { icon: '✓', title: 'Kalite Garantisi', desc: '30 gün sorunsuz iade' },
-  { icon: '🛡', title: 'Güvenli Ödeme', desc: 'Verileriniz korunuyor' },
-  { icon: '💬', title: '7/24 Destek', desc: 'Size yardımcı olmak için buradayız' },
+  { icon: '📦', title: 'Hızlı Kargo', desc: '1.500₺ üzeri siparişlerde ücretsiz teslimat' },
+  { icon: '🏆', title: 'Kalite Garantisi', desc: '30 gün sorunsuz iade' },
+  { icon: '🔒', title: 'Güvenli Ödeme', desc: 'Verileriniz korunuyor' },
+  { icon: '📞', title: '7/24 Destek', desc: 'Size yardımcı olmak için buradayız' },
 ]
 
 const TESTIMONIALS = [

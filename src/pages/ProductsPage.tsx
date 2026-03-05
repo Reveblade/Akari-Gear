@@ -48,9 +48,9 @@ export function ProductsPage() {
     const arr = [...products]
     switch (sort) {
       case 'price-asc':
-        return arr.sort((a, b) => (a.priceTry ?? a.price) - (b.priceTry ?? b.price))
+        return arr.sort((a, b) => (a.priceTry ?? 0) - (b.priceTry ?? 0))
       case 'price-desc':
-        return arr.sort((a, b) => (b.priceTry ?? b.price) - (a.priceTry ?? a.price))
+        return arr.sort((a, b) => (b.priceTry ?? 0) - (a.priceTry ?? 0))
       case 'name':
         return arr.sort((a, b) => a.name.localeCompare(b.name))
       default:

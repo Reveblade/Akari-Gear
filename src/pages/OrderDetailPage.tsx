@@ -92,7 +92,7 @@ export function OrderDetailPage() {
             </span>
           </div>
           <p className="mt-2 text-xs text-surface-500 dark:text-zinc-500">
-            Dolar kuru: {order.exchangeRateUsdToTry.toFixed(2)} (sipariş anındaki kur)
+            Kur: {order.exchangeRateUsdToTry.toFixed(2)} (sipariş anındaki döviz kuru)
           </p>
         </div>
 

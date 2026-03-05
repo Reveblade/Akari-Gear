@@ -26,6 +26,7 @@ export interface Product {
   images: string[];
   stock: number;
   isActive: boolean;
+  isFeatured?: boolean;
 }
 
 export interface ProductsResponse {
