@@ -21,12 +21,14 @@ export async function listProducts(
   res: Response
 ): Promise<void> {
   try {
-    const { category, search, page = 1, limit = 20, active } = req.query;
+    const { category, subcategory, search, featured, page = 1, limit = 20, active } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
     const query: Record<string, unknown> = {};
     if (active !== 'false') query.isActive = true;
+    if (featured === 'true') query.isFeatured = true;
     if (category) query.category = category;
+    if (subcategory && typeof subcategory === 'string') query.subcategory = subcategory;
     if (search && typeof search === 'string') {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },

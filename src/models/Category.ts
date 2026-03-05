@@ -1,5 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface ISubCategory {
+  name: string;
+  slug: string;
+}
+
 export interface ICategory extends Document {
   name: string;
   slug: string;
@@ -7,6 +12,7 @@ export interface ICategory extends Document {
   imageUrl?: string;
   isActive: boolean;
   sortOrder: number;
+  subcategories: ISubCategory[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +46,15 @@ const categorySchema = new Schema<ICategory>(
     sortOrder: {
       type: Number,
       default: 0,
+    },
+    subcategories: {
+      type: [
+        {
+          name: { type: String, required: true },
+          slug: { type: String, required: true },
+        },
+      ],
+      default: [],
     },
   },
   { timestamps: true }

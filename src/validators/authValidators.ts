@@ -38,3 +38,11 @@ export const resetPasswordValidator = [
     .matches(/[a-zA-Z]/)
     .withMessage('Password must contain a letter'),
 ];
+
+export const verify2FAValidator = [
+  body('token').notEmpty().withMessage('Verification token is required'),
+];
+
+export const resend2FAValidator = [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+];

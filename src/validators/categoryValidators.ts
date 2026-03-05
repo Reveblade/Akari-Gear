@@ -14,6 +14,16 @@ export const createCategoryValidator = [
   body('imageUrl').optional().isURL().withMessage('Invalid image URL'),
   body('isActive').optional().isBoolean(),
   body('sortOrder').optional().isInt({ min: 0 }),
+  body('subcategories')
+    .optional()
+    .isArray()
+    .withMessage('Subcategories must be an array'),
+  body('subcategories.*.name').optional().trim().notEmpty(),
+  body('subcategories.*.slug')
+    .optional()
+    .trim()
+    .matches(slugRegex)
+    .withMessage('Subcategory slug must be lowercase alphanumeric with hyphens'),
 ];
 
 export const updateCategoryValidator = [
@@ -28,6 +38,13 @@ export const updateCategoryValidator = [
   body('imageUrl').optional().isURL().withMessage('Invalid image URL'),
   body('isActive').optional().isBoolean(),
   body('sortOrder').optional().isInt({ min: 0 }),
+  body('subcategories').optional().isArray(),
+  body('subcategories.*.name').optional().trim().notEmpty(),
+  body('subcategories.*.slug')
+    .optional()
+    .trim()
+    .matches(slugRegex)
+    .withMessage('Subcategory slug must be lowercase alphanumeric with hyphens'),
 ];
 
 export const categoryIdValidator = [

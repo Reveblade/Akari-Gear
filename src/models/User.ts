@@ -12,6 +12,9 @@ export interface IUser extends Document {
   emailVerificationExpires?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  twoFactorEnabled: boolean;
+  twoFactorCode?: string;
+  twoFactorExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -45,12 +48,24 @@ const userSchema = new Schema<IUser>(
     emailVerificationExpires: Date,
     resetPasswordToken: String,
     resetPasswordExpires: Date,
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorCode: String,
+    twoFactorExpires: Date,
   },
   {
     timestamps: true,
     toJSON: {
       transform(_doc, ret: Record<string, unknown>) {
-        const { password: _p, emailVerificationToken: _e, resetPasswordToken: _r, ...rest } = ret;
+        const {
+          password: _p,
+          emailVerificationToken: _e,
+          resetPasswordToken: _r,
+          twoFactorCode: _t,
+          ...rest
+        } = ret;
         return rest;
       },
     },
@@ -59,6 +74,7 @@ const userSchema = new Schema<IUser>(
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
+  if (this.password.startsWith('$2')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });

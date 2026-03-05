@@ -5,6 +5,7 @@ Three-tier architecture backend for a classic web store. Built with Express, Typ
 ## Features
 
 - **Email authentication** – Register, login, email verification, password reset
+- **2FA (email-based)** – Optional two-factor auth via SendGrid
 - **Categories** – Extensible product categories (Mousepads now, more via admin later)
 - **Products** – Full CRUD with category association (prices in USD)
 - **USD/TRY exchange rate** – Daily fetch from TCMB, TRY display with round-up for POS
@@ -17,7 +18,7 @@ Three-tier architecture backend for a classic web store. Built with Express, Typ
 - **Language:** TypeScript
 - **Database:** MongoDB (Mongoose)
 - **Auth:** JWT + bcrypt
-- **Email:** Nodemailer (SMTP)
+- **Email:** Resend
 - **Validation:** express-validator
 
 ## Setup
@@ -40,7 +41,7 @@ cp .env.example .env
 Required variables:
 - `MONGODB_URI` – MongoDB connection string
 - `JWT_SECRET` – Secret for JWT signing
-- `SMTP_*` – Email config (use [Mailtrap](https://mailtrap.io) for dev)
+- `RESEND_API_KEY` – Resend API key ([create one](https://resend.com/api-keys))
 
 ### 3. Run MongoDB
 
@@ -91,6 +92,10 @@ API: `http://localhost:3000`
 | POST | `/api/auth/resend-verification` | Resend verification (body: `{ email }`) |
 | POST | `/api/auth/forgot-password` | Request password reset |
 | POST | `/api/auth/reset-password` | Reset password (body: `{ token, password }`) |
+| POST | `/api/auth/verify-2fa` | Verify 2FA link (body: `{ token }`) |
+| POST | `/api/auth/resend-2fa` | Resend 2FA code (body: `{ email }`) |
+| POST | `/api/auth/enable-2fa` | Enable 2FA (requires auth) |
+| POST | `/api/auth/disable-2fa` | Disable 2FA (requires auth) |
 | GET | `/api/auth/me` | Current user (requires `Authorization: Bearer <token>`) |
 | GET | `/api/categories` | List categories |
 | GET | `/api/categories/:slug` | Get category |
