@@ -14,7 +14,7 @@ Modern React + Vite frontend for testing the Mousepad Store backend.
 1. Ensure the backend is running on `http://localhost:3000`
 2. Install dependencies: `npm install`
 3. Start dev server: `npm run dev`
-4. Open `http://localhost:5173`
+4. Open `http://localhost:4000`
 
 ## API Proxy
 

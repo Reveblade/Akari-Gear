@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { ProductImageCarousel } from '../components/ProductImageCarousel'
 import type { Product } from '../types'
 
 export function ProductDetailPage() {
@@ -69,9 +70,10 @@ export function ProductDetailPage() {
       </nav>
 
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded-2xl border border-surface-200 bg-surface-100 flex items-center justify-center">
-          <div className="text-surface-300 text-9xl">⌨</div>
-        </div>
+        <ProductImageCarousel
+          images={product.images ?? []}
+          alt={product.name}
+        />
 
         <div>
           {categoryName && (

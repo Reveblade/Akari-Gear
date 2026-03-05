@@ -113,7 +113,13 @@ export function OrderDetailPage() {
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link
+          to="/orders"
+          className="inline-flex rounded-xl border border-surface-200 px-6 py-3 font-medium text-surface-700 transition hover:bg-surface-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
+        >
+          ← Siparişlerim
+        </Link>
         <Link
           to="/products"
           className="inline-flex rounded-xl border border-surface-200 px-6 py-3 font-medium text-surface-700 transition hover:bg-surface-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"

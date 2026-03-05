@@ -32,7 +32,7 @@ export function CartSummary({ total, itemCount, address, onPlaceOrder, placingOr
           <span>₺{total.toLocaleString()}</span>
         </div>
         <p className="mt-2 text-xs text-surface-500 dark:text-zinc-500">
-          * Döviz kuru ile hesaplanmıştır. Ödeme ve teslimat adımları yakında eklenecek.
+          * Döviz kuru ile hesaplanmıştır. Sipariş onaylandıktan sonra ödeme ve kargo bilgisi tarafınıza iletilecektir.
         </p>
       </div>
       <div className="mt-6 space-y-3">

@@ -9,7 +9,7 @@ const HERO_SLIDES = [
   {
     title: 'Hassasiyet Konforla Buluşuyor',
     subtitle: 'En iyisini talep eden oyuncular ve profesyoneller için tasarlandı.',
-    cta: 'Alışverişe Başla',
+    cta: '%70 Hız, %30 Kontrol',
   },
   {
     title: 'Premium Hammadde Seçimi',
@@ -31,9 +31,9 @@ const FEATURES = [
 ]
 
 const TESTIMONIALS = [
-  { quote: 'Kullandığım en iyi mousepad. Yüzey inanılmaz pürüzsüz.', author: 'Alex K.', role: 'Pro Oyuncu' },
-  { quote: 'Uzun kodlama seansları için mükemmel. Bilek yorgunluğu yok.', author: 'Sarah M.', role: 'Yazılım Mühendisi' },
-  { quote: 'Kaliteye göre harika fiyat. Kesinlikle tavsiye ederim.', author: 'James L.', role: 'Tasarımcı' },
+  { quote: 'Kullandığım en iyi mousepad. Yüzey inanılmaz pürüzsüz.', author: 'Reve', role: 'Pro Oyuncu' },
+  { quote: 'Uzun kodlama seansları için mükemmel. Bilek yorgunluğu yok.', author: 'Mert Y.', role: 'Bilgisayar Mühendisi' },
+  { quote: 'Kaliteye göre harika fiyat. Kesinlikle tavsiye ederim.', author: 'Ege Eymen A.', role: 'Öğrenci' },
 ]
 
 export function LandingPage() {

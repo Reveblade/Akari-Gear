@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
+import { WhatsAppButton } from './components/WhatsAppButton'
 import { LandingPage } from './pages/LandingPage'
 import { ProductsPage } from './pages/ProductsPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
@@ -11,6 +12,7 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { VerifyEmailPage } from './pages/VerifyEmailPage'
 import { Verify2FAPage } from './pages/Verify2FAPage'
 import { CartPage } from './pages/CartPage'
+import { MyOrdersPage } from './pages/MyOrdersPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 
 export default function App() {
@@ -33,10 +35,12 @@ export default function App() {
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/verify-2fa" element={<Verify2FAPage />} />
                 <Route path="/cart" element={<CartPage />} />
+                <Route path="/orders" element={<MyOrdersPage />} />
                 <Route path="/orders/:orderId" element={<OrderDetailPage />} />
               </Routes>
             </main>
             <Footer />
+            <WhatsAppButton />
           </div>
         }
       />

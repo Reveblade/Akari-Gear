@@ -44,8 +44,16 @@ export function ProductCard({ product, compact }: ProductCardProps) {
       to={`/products/${product.slug}`}
       className="group block overflow-hidden rounded-xl border border-surface-200 bg-white transition-all hover:border-primary-200 hover:shadow-lg dark:border-zinc-600 dark:bg-zinc-800 dark:hover:border-primary-600"
     >
-      <div className={`flex items-center justify-center bg-surface-100 dark:bg-zinc-700 ${compact ? 'aspect-[4/3]' : 'aspect-square'}`}>
-        <div className={`text-surface-300 group-hover:text-primary-200 transition-colors dark:text-zinc-500 dark:group-hover:text-primary-400 ${compact ? 'text-4xl' : 'text-6xl'}`}>⌨</div>
+      <div className={`flex items-center justify-center overflow-hidden bg-surface-100 dark:bg-zinc-700 ${compact ? 'aspect-[4/3]' : 'aspect-square'}`}>
+        {product.images?.[0] ? (
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className={`text-surface-300 group-hover:text-primary-200 transition-colors dark:text-zinc-500 dark:group-hover:text-primary-400 ${compact ? 'text-4xl' : 'text-6xl'}`}>⌨</div>
+        )}
       </div>
       <div className={compact ? 'p-3' : 'p-4'}>
         {categoryName && (
