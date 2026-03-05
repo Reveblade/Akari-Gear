@@ -83,3 +83,11 @@ services:
       - "${ROOT:-./data}/overrides/roundcube:/overrides:ro"
     depends_on:
       - imap
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${SUBNET:-192.168.203.0/24}

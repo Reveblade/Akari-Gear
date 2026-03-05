@@ -20,6 +20,12 @@ Mail server with webmail (Roundcube) for store owners. Send and receive email.
 6. **Deploy** — `./deploy.sh` (Linux) or `docker compose up -d`
 7. **Access** — https://mail.akarigear.com/admin (after DNS propagates)
 
+**Auto-deploy (GitHub Actions):** Pushes to `main` trigger deployment. In the repo → Settings → Secrets and variables → Actions, add:
+- `DEPLOY_HOST` — VM IP or hostname (e.g. `mail.akarigear.com`)
+- `DEPLOY_USER` — SSH user (e.g. `debian` or your username)
+- `SSH_PRIVATE_KEY` — Private key for SSH (paste the full key including `-----BEGIN ... -----`)
+- `DEPLOY_PATH` — (optional) Path to repo on VM, default `~/mail`
+
 **Windows (local testing):** Run `.\deploy.ps1` — port 25 may be blocked by ISP.
 
 ---
@@ -73,7 +79,16 @@ docker compose exec admin flask mailu admin me example.com 'YourPassword'
 
 *(Port 8080 avoids HSTS/HTTPS issues. Use **http://127.0.0.1:8080** — not localhost, not https.)*
 
+**Webmail flow:** Mailu uses SSO. Visit `/admin` first, log in with `admin@akarigear.com`, then use the webmail link or go to `/webmail`. Going directly to `/webmail` without a session will redirect you to the login page.
+
 **Note:** Containers use Cloudflare DNS (1.1.1.1) for DNSSEC validation. For production, consider enabling Mailu's unbound resolver.
+
+### Troubleshooting "fails to connect"
+
+- **Connection refused** — Ensure containers are running: `docker compose ps`. Restart: `docker compose down && docker compose up -d`.
+- **Admin works, webmail fails** — Try `http://127.0.0.1:8080/admin`, log in, then click the webmail link in the admin UI.
+- **Redirect loop / blank page** — With `TLS_FLAVOR=notls`, add `SESSION_COOKIE_SECURE=False` to `.env` and restart.
+- **Port 25 blocked (Windows)** — ISP may block port 25. Use `.\deploy.ps1` or start without port 25 for local testing.
 
 ## Production
 

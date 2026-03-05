@@ -26,13 +26,17 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
-# Validate production settings
+# Validate production settings (skip prompts when non-interactive, e.g. CI)
 if grep -q "BIND_ADDRESS4=127.0.0.1" .env; then
   echo "WARNING: BIND_ADDRESS4 is 127.0.0.1 — mail won't be reachable from internet."
   echo "For production, set to your server's public IP."
-  read -p "Continue anyway? (y/N) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+  if [[ -t 0 ]]; then
+    read -p "Continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then exit 1; fi
+  else
+    echo "Non-interactive mode: continuing."
+  fi
 fi
 
 if grep -q "TLS_FLAVOR=notls" .env; then
