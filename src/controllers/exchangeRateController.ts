@@ -21,7 +21,7 @@ export async function getLatestRate(
 
     if (!rate) {
       res.status(404).json({
-        error: 'No exchange rate available. Run fetch or seed first.',
+        error: 'Kur verisi bulunamadı.',
       });
       return;
     }
