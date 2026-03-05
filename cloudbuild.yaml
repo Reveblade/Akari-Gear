@@ -1,0 +1,28 @@
+# Google Cloud Build - Frontend (Mağaza)
+# Deploy: gcloud builds submit --config=cloudbuild.yaml .
+# BACKEND_URL Cloud Run'da env olarak ayarlanmalı (ilk deploy sonrası)
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${_TAG}', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${SHORT_SHA}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE}'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${_TAG}'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=PORT=8080,BACKEND_URL=${_BACKEND_URL}'
+substitutions:
+  _REGION: europe-west1
+  _REPOSITORY: mousepad
+  _SERVICE: frontend
+  _BACKEND_URL: ''
+  _TAG: latest
+options:
+  logging: CLOUD_LOGGING_ONLY
