@@ -7,6 +7,6 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-surface-50 text-surface-500 antialiased;
+    @apply bg-surface-50 text-surface-500 antialiased dark:bg-zinc-900 dark:text-zinc-300;
   }
 }
