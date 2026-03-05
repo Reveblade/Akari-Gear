@@ -35,6 +35,7 @@ const productSchema = new Schema<IProduct>(
       type: Number,
       required: true,
       min: 0,
+      // Stored in USD; convert to TRY via exchange rate for display/POS
     },
     category: {
       type: Schema.Types.ObjectId,

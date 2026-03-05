@@ -6,7 +6,8 @@ Three-tier architecture backend for a classic web store. Built with Express, Typ
 
 - **Email authentication** – Register, login, email verification, password reset
 - **Categories** – Extensible product categories (Mousepads now, more via admin later)
-- **Products** – Full CRUD with category association
+- **Products** – Full CRUD with category association (prices in USD)
+- **USD/TRY exchange rate** – Daily fetch from TCMB, TRY display with round-up for POS
 - **Admin API** – Protected routes for category/product management
 
 ## Tech Stack
@@ -59,6 +60,8 @@ Override with env vars:
 - `SEED_ADMIN_EMAIL`
 - `SEED_ADMIN_PASSWORD`
 
+Seed also fetches today's USD/TRY from TCMB (or uses fallback 34.5 if unavailable).
+
 ### 5. Start server
 
 ```bash
@@ -66,6 +69,14 @@ npm run dev
 ```
 
 API: `http://localhost:3000`
+
+### Currency (USD → TRY)
+
+- Product `price` is stored in **USD**.
+- Use `?currency=TRY` on product endpoints to get `priceTry` (rounded up to whole TRY).
+- Exchange rate is fetched daily from TCMB (Turkish Central Bank) via cron (weekdays 16:00).
+- Override cron: `CRON_EXCHANGE_RATE=0 16 * * 1-5`
+- Admin can trigger fetch: `POST /api/exchange-rate/fetch`
 
 ## API Endpoints
 
@@ -83,8 +94,9 @@ API: `http://localhost:3000`
 | GET | `/api/auth/me` | Current user (requires `Authorization: Bearer <token>`) |
 | GET | `/api/categories` | List categories |
 | GET | `/api/categories/:slug` | Get category |
-| GET | `/api/products` | List products (`?category=&search=&page=&limit=`) |
-| GET | `/api/products/:slug` | Get product |
+| GET | `/api/products` | List products (`?category=&search=&page=&limit=&currency=TRY`) |
+| GET | `/api/products/:slug` | Get product (`?currency=TRY` for `priceTry`) |
+| GET | `/api/exchange-rate` | Latest USD/TRY rate |
 
 ### Admin (requires `Authorization: Bearer <token>` + admin role)
 
@@ -101,6 +113,7 @@ API: `http://localhost:3000`
 | PUT | `/api/admin/products/:id` | Update product |
 | DELETE | `/api/admin/products/:id` | Delete product |
 | POST | `/api/admin/admins` | Create admin (body: `{ email, password }`) |
+| POST | `/api/exchange-rate/fetch` | Fetch rate from TCMB (admin only) |
 
 ## Project Structure
 

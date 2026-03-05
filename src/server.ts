@@ -1,11 +1,14 @@
 import mongoose from 'mongoose';
 import app from './app.js';
 import { config } from './config/index.js';
+import { scheduleExchangeRateJob } from './jobs/exchangeRateJob.js';
 
 async function start(): Promise<void> {
   try {
     await mongoose.connect(config.mongodbUri);
     console.log('MongoDB connected');
+
+    scheduleExchangeRateJob();
 
     app.listen(config.port, () => {
       console.log(`Server running on http://localhost:${config.port}`);

@@ -2,7 +2,19 @@ import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import mongoose from 'mongoose';
 import { Product } from '../models/Product.js';
+import { ExchangeRate } from '../models/ExchangeRate.js';
+import { usdToTryRoundUp } from '../utils/currency.js';
 import { AuthRequest } from '../middleware/auth.js';
+
+function withTryPrices<T extends { price: number }>(
+  items: T[],
+  rate: number
+): (T & { priceTry: number })[] {
+  return items.map((item) => ({
+    ...item,
+    priceTry: usdToTryRoundUp(item.price, rate),
+  }));
+}
 
 export async function listProducts(
   req: AuthRequest,
@@ -22,7 +34,10 @@ export async function listProducts(
       ];
     }
 
-    const [products, total] = await Promise.all([
+    const currency = req.query.currency as string | undefined;
+    const wantTry = currency?.toUpperCase() === 'TRY';
+
+    const [products, total, exchangeRate] = await Promise.all([
       Product.find(query)
         .populate('category', 'name slug')
         .sort({ createdAt: -1 })
@@ -30,10 +45,20 @@ export async function listProducts(
         .limit(Number(limit))
         .lean(),
       Product.countDocuments(query),
+      wantTry ? ExchangeRate.findOne().sort({ date: -1 }).lean() : null,
     ]);
 
+    let payload: unknown = products;
+    let rateInfo: { usdToTry: number; date: Date } | undefined;
+
+    if (wantTry && exchangeRate) {
+      payload = withTryPrices(products as { price: number }[], exchangeRate.usdToTry);
+      rateInfo = { usdToTry: exchangeRate.usdToTry, date: exchangeRate.date };
+    }
+
     res.json({
-      products,
+      products: payload,
+      ...(rateInfo && { exchangeRate: rateInfo }),
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -68,7 +93,22 @@ export async function getProduct(
       return;
     }
 
-    res.json({ product });
+    const currency = req.query.currency as string | undefined;
+    const wantTry = currency?.toUpperCase() === 'TRY';
+
+    let payload: Record<string, unknown> = product as Record<string, unknown>;
+    if (wantTry) {
+      const rate = await ExchangeRate.findOne().sort({ date: -1 }).lean();
+      if (rate) {
+        payload = {
+          ...product,
+          priceTry: usdToTryRoundUp(product.price, rate.usdToTry),
+          exchangeRate: { usdToTry: rate.usdToTry, date: rate.date },
+        };
+      }
+    }
+
+    res.json({ product: payload });
   } catch (err) {
     console.error('Get product error:', err);
     res.status(500).json({ error: 'Failed to fetch product' });
