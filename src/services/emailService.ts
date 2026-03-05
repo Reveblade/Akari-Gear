@@ -51,9 +51,9 @@ export async function sendVerificationEmail({
 
   await sendEmail(
     to,
-    'Verify your email - Mousepad Store',
+    'Verify your email - Akari Gear',
     `
-      <h2>Welcome to Mousepad Store!</h2>
+      <h2>Welcome to Akari Gear!</h2>
       <p>Please verify your email by clicking the link below:</p>
       <p><a href="${verifyUrl}">Verify Email</a></p>
       <p>This link expires in 24 hours.</p>
@@ -79,7 +79,7 @@ export async function sendPasswordResetEmail({
 
   await sendEmail(
     to,
-    'Reset your password - Mousepad Store',
+    'Reset your password - Akari Gear',
     `
       <h2>Password Reset Request</h2>
       <p>Click the link below to reset your password:</p>
@@ -101,7 +101,7 @@ export async function send2FALinkEmail({ to, token }: Send2FALinkEmailParams): P
 
   await sendEmail(
     to,
-    'Your login verification link - Mousepad Store',
+    'Your login verification link - Akari Gear',
     `
       <h2>Complete your login</h2>
       <p>Click the link below to complete your login:</p>

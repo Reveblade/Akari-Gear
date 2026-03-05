@@ -15,7 +15,10 @@ export const createProductValidator = [
   body('category').isMongoId().withMessage('Valid category ID is required'),
   body('subcategory').optional().trim(),
   body('images').optional().isArray(),
-  body('images.*').optional().isURL().withMessage('Invalid image URL'),
+  body('images.*')
+    .optional()
+    .custom((v) => typeof v === 'string' && (v.startsWith('http') || v.startsWith('/uploads/')))
+    .withMessage('Geçerli resim URL veya yolu gerekli'),
   body('stock').optional().isInt({ min: 0 }),
   body('isActive').optional().isBoolean(),
   body('isFeatured').optional().isBoolean(),
@@ -34,7 +37,10 @@ export const updateProductValidator = [
   body('category').optional().isMongoId(),
   body('subcategory').optional().trim(),
   body('images').optional().isArray(),
-  body('images.*').optional().isURL().withMessage('Invalid image URL'),
+  body('images.*')
+    .optional()
+    .custom((v) => typeof v === 'string' && (v.startsWith('http') || v.startsWith('/uploads/')))
+    .withMessage('Geçerli resim URL veya yolu gerekli'),
   body('stock').optional().isInt({ min: 0 }),
   body('isActive').optional().isBoolean(),
   body('isFeatured').optional().isBoolean(),

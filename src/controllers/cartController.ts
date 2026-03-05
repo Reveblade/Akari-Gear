@@ -97,10 +97,19 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
     await cart.save();
 
     const updated = await Cart.findById(cart._id)
-      .populate({ path: 'items.product', select: 'name slug price' })
+      .populate({ path: 'items.product', select: 'name slug price images' })
       .lean();
 
-    res.json({ cart: updated });
+    const rate = await ExchangeRate.findOne().sort({ date: -1 }).lean();
+    const items = (updated?.items ?? []).map((i) => {
+      const p = i.product as unknown as { _id: string; name: string; slug: string; price: number };
+      if (!p || typeof p !== 'object' || !('name' in p)) return null;
+      const product: Record<string, unknown> = { ...p };
+      if (rate) product.priceTry = usdToTryRoundUp(p.price, rate.usdToTry);
+      return { product, quantity: i.quantity };
+    }).filter(Boolean);
+
+    res.json({ cart: { items } });
   } catch (err) {
     console.error('Add to cart error:', err);
     res.status(500).json({ error: 'Failed to add to cart' });
