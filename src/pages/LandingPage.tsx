@@ -128,7 +128,7 @@ export function LandingPage() {
             </Carousel>
           </div>
         ) : (
-          <p className="mt-8 text-surface-400 dark:text-zinc-500">Henüz ürün yok. Backend seed script'ini çalıştırın.</p>
+          <p className="mt-8 text-surface-400 dark:text-zinc-500">Henüz ürün yok.</p>
         )}
       </section>
 
