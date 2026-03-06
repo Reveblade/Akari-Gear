@@ -1,62 +1,44 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ProductCard } from '../components/ProductCard'
 import { api } from '../api/client'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import type { Product, Category } from '../types'
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'name'
 
 export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
-  const [totalPages, setTotalPages] = useState(1)
 
   const category = searchParams.get('category') ?? ''
   const subcategory = searchParams.get('subcategory') ?? ''
   const search = searchParams.get('search') ?? ''
-  const page = Number(searchParams.get('page')) || 1
   const sort = (searchParams.get('sort') as SortOption) || 'newest'
 
   const selectedCategory = categories.find((c) => c._id === category)
   const subcategories = selectedCategory?.subcategories ?? []
 
-  useEffect(() => {
-    setLoading(true)
-    api.getProducts({
-      category: category || undefined,
-      subcategory: subcategory || undefined,
-      search: search || undefined,
-      page,
-      limit: 12,
-      currency: 'TRY',
-    })
-      .then((res) => {
-        setProducts(res.products)
-        setTotalPages(res.pagination.pages)
-      })
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false))
-  }, [category, subcategory, search, page])
+  const { items: products, loading, loadingMore, hasMore, sentinelRef } = useInfiniteScroll<Product>({
+    fetchPage: (page) =>
+      api.getProducts({
+        category: category || undefined,
+        subcategory: subcategory || undefined,
+        search: search || undefined,
+        page,
+        limit: 20,
+        currency: 'TRY',
+        sort,
+      }).then((res) => ({
+        items: res.products,
+        pagination: res.pagination,
+      })),
+    deps: [category, subcategory, search, sort],
+  })
 
   useEffect(() => {
     api.getCategories().then((res) => setCategories(res.categories)).catch(() => {})
   }, [])
-
-  const sortedProducts = useMemo(() => {
-    const arr = [...products]
-    switch (sort) {
-      case 'price-asc':
-        return arr.sort((a, b) => (a.priceTry ?? 0) - (b.priceTry ?? 0))
-      case 'price-desc':
-        return arr.sort((a, b) => (b.priceTry ?? 0) - (a.priceTry ?? 0))
-      case 'name':
-        return arr.sort((a, b) => a.name.localeCompare(b.name))
-      default:
-        return arr
-    }
-  }, [products, sort])
 
   const updateParams = (updates: Record<string, string>) => {
     const next = new URLSearchParams(searchParams)
@@ -65,7 +47,6 @@ export function ProductsPage() {
       else next.delete(k)
     })
     if ('category' in updates) next.delete('subcategory')
-    next.delete('page')
     setSearchParams(next, { replace: true })
   }
 
@@ -186,7 +167,7 @@ export function ProductsPage() {
                 </div>
               ))}
             </div>
-          ) : sortedProducts.length === 0 ? (
+          ) : products.length === 0 ? (
             <div className="rounded-2xl border border-surface-200 bg-white p-16 text-center dark:border-zinc-600 dark:bg-zinc-800">
               <p className="text-surface-500 dark:text-zinc-400">Ürün bulunamadı.</p>
               <button
@@ -199,38 +180,20 @@ export function ProductsPage() {
           ) : (
             <>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {sortedProducts.map((p) => (
+                {products.map((p) => (
                   <ProductCard key={p._id} product={p} />
                 ))}
               </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-8 flex justify-center gap-2">
-                  <button
-                    onClick={() => setSearchParams((p: URLSearchParams) => {
-                      p.set('page', String(Math.max(1, page - 1)))
-                      return p
-                    })}
-                    disabled={page <= 1}
-                    className="rounded-lg border border-surface-200 px-4 py-2 text-sm font-medium disabled:opacity-50 hover:bg-surface-50 dark:border-zinc-600 dark:hover:bg-zinc-700"
-                  >
-                    Önceki
-                  </button>
-                  <span className="flex items-center px-4 text-sm text-surface-500 dark:text-zinc-400">
-                    Sayfa {page} / {totalPages}
-                  </span>
-                  <button
-                    onClick={() => setSearchParams((p: URLSearchParams) => {
-                      p.set('page', String(Math.min(totalPages, page + 1)))
-                      return p
-                    })}
-                    disabled={page >= totalPages}
-                    className="rounded-lg border border-surface-200 px-4 py-2 text-sm font-medium disabled:opacity-50 hover:bg-surface-50 dark:border-zinc-600 dark:hover:bg-zinc-700"
-                  >
-                    Sonraki
-                  </button>
+              <div ref={sentinelRef} className="h-4" />
+              {loadingMore && (
+                <div className="mt-4 flex justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
                 </div>
+              )}
+              {!hasMore && products.length > 0 && (
+                <p className="mt-4 text-center text-sm text-surface-500 dark:text-zinc-400">
+                  Tüm ürünler görüntülendi
+                </p>
               )}
             </>
           )}

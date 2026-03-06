@@ -7,12 +7,20 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+ARG VITE_ADMIN_URL=http://localhost:5000
+ENV VITE_ADMIN_URL=$VITE_ADMIN_URL
 RUN npm run build
 
 # Serve
 FROM nginx:alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN apk add --no-cache gettext-envsubst
 
-EXPOSE 80
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 80 8080
+
+ENTRYPOINT ["/entrypoint.sh"]

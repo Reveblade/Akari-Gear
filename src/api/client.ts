@@ -44,6 +44,7 @@ export const api = {
     page?: number;
     limit?: number;
     currency?: 'USD' | 'TRY';
+    sort?: 'newest' | 'price-asc' | 'price-desc' | 'name';
   }) => {
     const search = new URLSearchParams();
     if (params?.category) search.set('category', params.category);
@@ -53,6 +54,7 @@ export const api = {
     if (params?.page) search.set('page', String(params.page));
     if (params?.limit) search.set('limit', String(params.limit));
     if (params?.currency) search.set('currency', params.currency);
+    if (params?.sort) search.set('sort', params.sort);
     const qs = search.toString();
     return fetchApi<import('../types').ProductsResponse>(`/products${qs ? `?${qs}` : ''}`);
   },
@@ -98,8 +100,13 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ address }),
       }),
-    getMyOrders: () =>
-      fetchApi<import('../types').OrdersResponse>('/orders'),
+    getMyOrders: (params?: { page?: number; limit?: number }) => {
+      const search = new URLSearchParams();
+      if (params?.page) search.set('page', String(params.page));
+      if (params?.limit) search.set('limit', String(params.limit));
+      const qs = search.toString();
+      return fetchApi<import('../types').OrdersResponse>(`/orders${qs ? `?${qs}` : ''}`);
+    },
     getOrder: (orderId: string) =>
       fetchApi<import('../types').OrderResponse>(`/orders/${orderId}`),
   },

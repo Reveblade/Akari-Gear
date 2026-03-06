@@ -133,6 +133,7 @@ export interface CreateOrderResponse {
 
 export interface OrdersResponse {
   orders: Order[];
+  pagination: { page: number; limit: number; total: number; pages: number };
 }
 
 export interface OrderResponse {

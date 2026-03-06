@@ -60,8 +60,9 @@ export function CartPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="animate-pulse space-y-4">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <h1 className="font-display text-2xl font-bold text-surface-800 dark:text-zinc-100">Sepetim</h1>
+        <div className="mt-8 animate-pulse space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-28 rounded-xl bg-surface-100 dark:bg-zinc-700" />
           ))}
@@ -72,7 +73,7 @@ export function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <h1 className="font-display text-2xl font-bold text-surface-800 dark:text-zinc-100">Sepetim</h1>
         <div className="mt-8 rounded-2xl border border-surface-200 bg-white p-16 text-center dark:border-zinc-600 dark:bg-zinc-800">
           <p className="text-surface-500 dark:text-zinc-400">Sepetiniz boş.</p>
@@ -96,7 +97,7 @@ export function CartPage() {
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0)
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <h1 className="font-display text-2xl font-bold text-surface-800 dark:text-zinc-100">Sepetim</h1>
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
