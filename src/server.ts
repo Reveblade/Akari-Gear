@@ -3,23 +3,23 @@ import app from './app.js';
 import { config } from './config/index.js';
 import { scheduleExchangeRateJob } from './jobs/exchangeRateJob.js';
 
-async function start(): Promise<void> {
+// Cloud Run: Port dinlemeyi hemen başlat (MongoDB'den önce), yoksa startup timeout olur
+const server = app.listen(config.port, '0.0.0.0', () => {
+  console.log(`Server listening on port ${config.port}`);
+});
+
+async function connectDb(): Promise<void> {
   try {
     await mongoose.connect(config.mongodbUri);
     console.log('MongoDB connected');
-
     scheduleExchangeRateJob();
-
-    app.listen(config.port, '0.0.0.0', () => {
-      console.log(`Server running on http://localhost:${config.port}`);
-      if (config.env === 'development') {
-        console.log(`Email links: reset/verify → ${config.urls.frontend}`);
-      }
-    });
+    if (config.env === 'development') {
+      console.log(`Email links: reset/verify → ${config.urls.frontend}`);
+    }
   } catch (err) {
-    console.error('Failed to start:', err);
-    process.exit(1);
+    console.error('MongoDB connection failed:', err);
+    server.close(() => process.exit(1));
   }
 }
 
-start();
+connectDb();

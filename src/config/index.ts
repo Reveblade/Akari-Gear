@@ -4,7 +4,7 @@ dotenv.config();
 
 export const config = {
   env: process.env.NODE_ENV ?? 'development',
-  port: parseInt(process.env.PORT ?? '3000', 10),
+  port: parseInt(process.env.PORT || '3000', 10),
   mongodbUri: process.env.MONGODB_URI ?? 'mongodb://localhost:27017/mousepad-store',
   jwt: {
     secret: process.env.JWT_SECRET ?? 'dev-secret-change-in-production',
@@ -20,7 +20,7 @@ export const config = {
     from: process.env.EMAIL_FROM ?? 'noreply@mousepad-store.com',
   },
   urls: {
-    frontend: process.env.FRONTEND_URL ?? 'http://localhost:4000',
-    admin: process.env.ADMIN_URL ?? 'http://localhost:5000',
+    frontend: process.env.FRONTEND_URL ?? 'http://localhost:8000',
+    admin: process.env.ADMIN_URL ?? 'http://localhost:8001',
   },
 } as const;
