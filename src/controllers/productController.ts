@@ -21,7 +21,7 @@ export async function listProducts(
   res: Response
 ): Promise<void> {
   try {
-    const { category, subcategory, search, featured, page = 1, limit = 20, active, inactive } = req.query;
+    const { category, subcategory, search, featured, page = 1, limit = 20, active, inactive, sort } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
     const query: Record<string, unknown> = {};
@@ -40,13 +40,21 @@ export async function listProducts(
       ];
     }
 
+    const sortMap: Record<string, { [k: string]: 1 | -1 }> = {
+      newest: { createdAt: -1 },
+      'price-asc': { price: 1 },
+      'price-desc': { price: -1 },
+      name: { name: 1 },
+    };
+    const sortOpt = (typeof sort === 'string' && sortMap[sort]) ? sortMap[sort] : { createdAt: -1 };
+
     const currency = req.query.currency as string | undefined;
     const wantTry = currency?.toUpperCase() === 'TRY';
 
     const [products, total, exchangeRate] = await Promise.all([
       Product.find(query)
         .populate('category', 'name slug')
-        .sort({ createdAt: -1 })
+        .sort(sortOpt as { [key: string]: 1 | -1 })
         .skip(skip)
         .limit(Number(limit))
         .lean(),

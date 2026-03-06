@@ -153,12 +153,30 @@ export async function getMyOrders(req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    const orders = await Order.find({ user: req.user._id })
-      .sort({ createdAt: -1 })
-      .populate({ path: 'items.product', select: 'name slug images' })
-      .lean();
+    const { page = '1', limit = '20' } = req.query;
+    const pageNum = Math.max(1, parseInt(String(page), 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(String(limit), 10)));
+    const skip = (pageNum - 1) * limitNum;
 
-    res.json({ orders });
+    const [orders, total] = await Promise.all([
+      Order.find({ user: req.user._id })
+        .sort({ createdAt: -1 })
+        .populate({ path: 'items.product', select: 'name slug images' })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Order.countDocuments({ user: req.user._id }),
+    ]);
+
+    res.json({
+      orders,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
   } catch (err) {
     console.error('Get orders error:', err);
     res.status(500).json({ error: 'Siparişler yüklenemedi' });

@@ -6,7 +6,11 @@ import { AuthRequest } from '../middleware/auth.js';
 
 export async function listOrders(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const { status, code } = req.query;
+    const { status, code, page = '1', limit = '20' } = req.query;
+    const pageNum = Math.max(1, parseInt(String(page), 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(String(limit), 10)));
+    const skip = (pageNum - 1) * limitNum;
+
     const filter: Record<string, unknown> = {};
     if (status && typeof status === 'string') filter.status = status;
 
@@ -27,13 +31,26 @@ export async function listOrders(req: AuthRequest, res: Response): Promise<void>
       }
     }
 
-    const orders = await Order.find(filter)
-      .sort({ createdAt: -1 })
-      .populate('user', 'email')
-      .populate({ path: 'items.product', select: 'name slug images' })
-      .lean();
+    const [orders, total] = await Promise.all([
+      Order.find(filter)
+        .sort({ createdAt: -1 })
+        .populate('user', 'email')
+        .populate({ path: 'items.product', select: 'name slug images' })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Order.countDocuments(filter),
+    ]);
 
-    res.json({ orders });
+    res.json({
+      orders,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
   } catch (err) {
     console.error('Admin list orders error:', err);
     res.status(500).json({ error: 'Siparişler yüklenemedi' });
