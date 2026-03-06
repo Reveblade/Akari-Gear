@@ -121,9 +121,12 @@ API: `http://localhost:3000`
 
 ## Uploads
 
-Product images are stored in `uploads/products/` (gitignored). The folder is created automatically on first upload.
+Product images support two modes:
 
-**Production:** For deployment, use a persistent volume for `uploads/` or switch to cloud storage (S3, Cloudinary). Otherwise uploads are lost on container/server restart.
+- **Cloudinary (recommended for production):** Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in `.env`. Images are uploaded to Cloudinary and served via CDN.
+- **Local disk:** If Cloudinary is not configured, images are stored in `uploads/products/` (gitignored). The folder is created automatically on first upload.
+
+**Production:** Use Cloudinary to avoid ephemeral storage issues on Cloud Run (uploads are lost on container restart).
 
 ## Project Structure
 

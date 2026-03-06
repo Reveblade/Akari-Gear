@@ -30,6 +30,7 @@ router.post(
   uploadController.uploadImage
 );
 
-router.delete('/:filename', uploadController.deleteImage);
+// DELETE /:filename for local files, or DELETE ?url=<cloudinary_url> for cloud
+router.delete('/:filename?', uploadController.deleteImage);
 
 export default router;
