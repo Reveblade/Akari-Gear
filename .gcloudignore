@@ -1,0 +1,12 @@
+# Exclude from gcloud builds submit (faster uploads)
+.git
+.gitignore
+node_modules
+dist
+.env
+.env.*
+*.log
+.DS_Store
+uploads
+*.md
+!README.md

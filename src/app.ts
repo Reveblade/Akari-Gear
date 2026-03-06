@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -40,10 +41,20 @@ const authLimiter = rateLimit({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
+// Ensure uploads dir exists (Cloud Run ephemeral storage)
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+app.use('/uploads', express.static(uploadsDir, {
   maxAge: '1y',
   immutable: true,
 }));
+
+// Cloud Run startup/liveness probe (sends GET /)
+app.get('/', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/cart', cartRoutes);
@@ -52,10 +63,6 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/exchange-rate', exchangeRateRoutes);
 app.use('/api/admin', adminRoutes);
-
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
