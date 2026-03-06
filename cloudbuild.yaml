@@ -17,6 +17,7 @@ steps:
       - '--region=${_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
+      - '--port=8080'
       - '--set-env-vars=NODE_ENV=production,PORT=8080'
 substitutions:
   _REGION: europe-west1
