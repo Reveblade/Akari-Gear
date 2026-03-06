@@ -17,8 +17,8 @@ export const createProductValidator = [
   body('images').optional().isArray(),
   body('images.*')
     .optional()
-    .custom((v) => typeof v === 'string' && (v.startsWith('http') || v.startsWith('/uploads/')))
-    .withMessage('Geçerli resim URL veya yolu gerekli'),
+    .custom((v) => typeof v === 'string' && v.startsWith('http'))
+    .withMessage('Geçerli resim URL gerekli (Cloudinary)'),
   body('stock').optional().isInt({ min: 0 }),
   body('isActive').optional().isBoolean(),
   body('isFeatured').optional().isBoolean(),
@@ -39,8 +39,8 @@ export const updateProductValidator = [
   body('images').optional().isArray(),
   body('images.*')
     .optional()
-    .custom((v) => typeof v === 'string' && (v.startsWith('http') || v.startsWith('/uploads/')))
-    .withMessage('Geçerli resim URL veya yolu gerekli'),
+    .custom((v) => typeof v === 'string' && v.startsWith('http'))
+    .withMessage('Geçerli resim URL gerekli (Cloudinary)'),
   body('stock').optional().isInt({ min: 0 }),
   body('isActive').optional().isBoolean(),
   body('isFeatured').optional().isBoolean(),

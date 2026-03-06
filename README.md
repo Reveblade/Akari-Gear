@@ -119,14 +119,9 @@ API: `http://localhost:3000`
 | POST | `/api/admin/upload` | Upload product image (form-data, field: `image`) |
 | POST | `/api/exchange-rate/fetch` | Fetch rate from TCMB (admin only) |
 
-## Uploads
+## Uploads (Cloudinary)
 
-Product images support two modes:
-
-- **Cloudinary (recommended for production):** Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in `.env`. Images are uploaded to Cloudinary and served via CDN.
-- **Local disk:** If Cloudinary is not configured, images are stored in `uploads/products/` (gitignored). The folder is created automatically on first upload.
-
-**Production:** Use Cloudinary to avoid ephemeral storage issues on Cloud Run (uploads are lost on container restart).
+Ürün görselleri yalnızca Cloudinary üzerinden yönetilir. `.env` dosyasında `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` ve `CLOUDINARY_API_SECRET` değişkenlerini ayarlayın. Hesap: https://cloudinary.com
 
 ## Project Structure
 

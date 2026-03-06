@@ -1,6 +1,4 @@
 import express from 'express';
-import fs from 'fs';
-import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
@@ -40,15 +38,6 @@ const authLimiter = rateLimit({
 });
 app.use(express.json());
 app.use(cookieParser());
-
-// Ensure uploads dir exists (Cloud Run ephemeral storage)
-const uploadsDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-app.use('/uploads', express.static(uploadsDir, {
-  maxAge: '1y',
-  immutable: true,
-}));
 
 // Cloud Run startup/liveness probe (sends GET /)
 app.get('/', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));

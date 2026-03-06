@@ -2,18 +2,10 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireAdmin } from '../../middleware/auth.js';
 import { uploadProductImage } from '../../config/multer.js';
 import * as uploadController from '../../controllers/uploadController.js';
-import fs from 'fs';
-import path from 'path';
 
 const router = Router();
-const productsDir = path.join(process.cwd(), 'uploads', 'products');
 
 router.use(authenticate, requireAdmin);
-
-// Ensure uploads/products directory exists
-if (!fs.existsSync(productsDir)) {
-  fs.mkdirSync(productsDir, { recursive: true });
-}
 
 router.post(
   '/',
@@ -30,7 +22,7 @@ router.post(
   uploadController.uploadImage
 );
 
-// DELETE /:filename for local files, or DELETE ?url=<cloudinary_url> for cloud
-router.delete('/:filename?', uploadController.deleteImage);
+// DELETE ?url=<cloudinary_url>
+router.delete('/', uploadController.deleteImage);
 
 export default router;
