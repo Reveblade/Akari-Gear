@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import type { Order } from '../types'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -12,23 +13,25 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 export function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [codeSearch, setCodeSearch] = useState('')
   const [codeInput, setCodeInput] = useState('')
 
-  useEffect(() => {
-    setLoading(true)
-    const params: { status?: string; code?: string } = {}
-    if (statusFilter) params.status = statusFilter
-    if (codeSearch.trim()) params.code = codeSearch.trim()
-    api.admin.orders
-      .list(Object.keys(params).length ? params : undefined)
-      .then((res) => setOrders(res.orders))
-      .catch(() => setOrders([]))
-      .finally(() => setLoading(false))
-  }, [statusFilter, codeSearch])
+  const { items: orders, loading, loadingMore, hasMore, sentinelRef } = useInfiniteScroll<Order>({
+    fetchPage: (page) =>
+      api.admin.orders
+        .list({
+          page,
+          limit: 20,
+          status: statusFilter || undefined,
+          code: codeSearch.trim() || undefined,
+        })
+        .then((res) => ({
+          items: res.orders,
+          pagination: res.pagination,
+        })),
+    deps: [statusFilter, codeSearch],
+  })
 
   function handleCodeSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -90,43 +93,54 @@ export function AdminOrdersPage() {
           <p className="text-zinc-400">Henüz sipariş yok.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {orders.map((order) => {
-            const userEmail = typeof order.user === 'object' ? order.user?.email : '-'
-            return (
-              <Link
-                key={order._id}
-                to={`/orders/${order._id}`}
-                className="block rounded-xl border border-zinc-600 bg-zinc-800 p-4 transition hover:border-primary-500"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-white">
-                      #{order._id.slice(-8).toUpperCase()} — {userEmail}
-                    </p>
-                    <p className="mt-1 text-sm text-zinc-400">
-                      {order.items.length} ürün · ₺{order.totalTry.toLocaleString()} ·{' '}
-                      {new Date(order.createdAt).toLocaleDateString('tr-TR')}
-                    </p>
+        <>
+          <div className="space-y-4">
+            {orders.map((order) => {
+              const userEmail = typeof order.user === 'object' ? order.user?.email : '-'
+              return (
+                <Link
+                  key={order._id}
+                  to={`/orders/${order._id}`}
+                  className="block rounded-xl border border-zinc-600 bg-zinc-800 p-4 transition hover:border-primary-500"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-white">
+                        #{order._id.slice(-8).toUpperCase()} — {userEmail}
+                      </p>
+                      <p className="mt-1 text-sm text-zinc-400">
+                        {order.items.length} ürün · ₺{order.totalTry.toLocaleString()} ·{' '}
+                        {new Date(order.createdAt).toLocaleDateString('tr-TR')}
+                      </p>
+                    </div>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        order.status === 'pending'
+                          ? 'bg-amber-500/20 text-amber-400'
+                          : order.status === 'paid' || order.status === 'shipped'
+                          ? 'bg-green-500/20 text-green-400'
+                          : order.status === 'delivered'
+                          ? 'bg-blue-500/20 text-blue-400'
+                          : 'bg-zinc-600 text-zinc-400'
+                      }`}
+                    >
+                      {STATUS_LABELS[order.status] ?? order.status}
+                    </span>
                   </div>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                      order.status === 'pending'
-                        ? 'bg-amber-500/20 text-amber-400'
-                        : order.status === 'paid' || order.status === 'shipped'
-                        ? 'bg-green-500/20 text-green-400'
-                        : order.status === 'delivered'
-                        ? 'bg-blue-500/20 text-blue-400'
-                        : 'bg-zinc-600 text-zinc-400'
-                    }`}
-                  >
-                    {STATUS_LABELS[order.status] ?? order.status}
-                  </span>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+                </Link>
+              )
+            })}
+          </div>
+          <div ref={sentinelRef} className="h-4" />
+          {loadingMore && (
+            <div className="mt-4 flex justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+            </div>
+          )}
+          {!hasMore && orders.length > 0 && (
+            <p className="mt-4 text-center text-sm text-zinc-400">Tüm siparişler görüntülendi</p>
+          )}
+        </>
       )}
     </div>
   )

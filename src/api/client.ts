@@ -116,12 +116,17 @@ export const api = {
         fetchApi<{ message: string }>(`/admin/categories/${id}`, { method: 'DELETE' }),
     },
     orders: {
-      list: (params?: { status?: string; code?: string }) => {
+      list: (params?: { status?: string; code?: string; page?: number; limit?: number }) => {
         const search = new URLSearchParams()
         if (params?.status) search.set('status', params.status)
         if (params?.code) search.set('code', params.code)
+        if (params?.page) search.set('page', String(params.page))
+        if (params?.limit) search.set('limit', String(params.limit))
         const qs = search.toString()
-        return fetchApi<{ orders: import('../types').Order[] }>(`/admin/orders${qs ? `?${qs}` : ''}`)
+        return fetchApi<{
+          orders: import('../types').Order[]
+          pagination: { page: number; limit: number; total: number; pages: number }
+        }>(`/admin/orders${qs ? `?${qs}` : ''}`)
       },
       get: (id: string) =>
         fetchApi<{ order: import('../types').Order }>(`/admin/orders/${id}`),
@@ -158,8 +163,16 @@ export const api = {
         fetchApi<{ message: string }>(`/admin/users/${id}`, { method: 'DELETE' }),
       get: (id: string) =>
         fetchApi<{ user: import('../types').AdminUser }>(`/admin/users/${id}`),
-      getOrders: (id: string) =>
-        fetchApi<{ orders: import('../types').Order[] }>(`/admin/users/${id}/orders`),
+      getOrders: (id: string, params?: { page?: number; limit?: number }) => {
+        const search = new URLSearchParams()
+        if (params?.page) search.set('page', String(params.page))
+        if (params?.limit) search.set('limit', String(params.limit))
+        const qs = search.toString()
+        return fetchApi<{
+          orders: import('../types').Order[]
+          pagination: { page: number; limit: number; total: number; pages: number }
+        }>(`/admin/users/${id}/orders${qs ? `?${qs}` : ''}`)
+      },
     },
     exchangeRate: {
       get: () =>

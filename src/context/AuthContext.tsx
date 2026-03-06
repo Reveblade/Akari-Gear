@@ -4,7 +4,7 @@ import { setStoredToken, clearStoredToken, getStoredToken } from '../api/client'
 import type { User } from '../types'
 
 type LoginResult =
-  | { success: true }
+  | { success: true; user: User }
   | { requiresTwoFactor: true; email: string }
 
 interface AuthContextValue {
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authRes = res as import('../types').AuthResponse
     setStoredToken(authRes.token)
     setUser(authRes.user)
-    return { success: true }
+    return { success: true, user: authRes.user }
   }, [])
 
   const verify2FA = useCallback(async (token: string) => {

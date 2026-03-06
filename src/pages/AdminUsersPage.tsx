@@ -1,40 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import type { AdminUser } from '../types'
 
 export function AdminUsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
-  const [page, setPage] = useState(1)
-  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 })
+  const [patched, setPatched] = useState<Record<string, AdminUser>>({})
 
-  useEffect(() => {
-    setLoading(true)
-    api.admin.users
-      .list({ page, limit: 20, search: search || undefined, role: roleFilter || undefined })
-      .then((res) => {
-        setUsers(res.users)
-        setPagination(res.pagination)
-      })
-      .catch(() => setUsers([]))
-      .finally(() => setLoading(false))
-  }, [page, search, roleFilter])
+  const { items: users, loading, loadingMore, hasMore, sentinelRef, reset } = useInfiniteScroll<AdminUser>({
+    fetchPage: (page) =>
+      api.admin.users
+        .list({ page, limit: 20, search: search || undefined, role: roleFilter || undefined })
+        .then((res) => ({
+          items: res.users,
+          pagination: res.pagination,
+        })),
+    deps: [search, roleFilter],
+  })
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setSearch(searchInput.trim())
-    setPage(1)
   }
 
   async function handleBlock(id: string) {
     if (!confirm('Bu kullanıcıyı engellemek istediğinize emin misiniz?')) return
     try {
       const { user } = await api.admin.users.block(id)
-      setUsers((prev) => prev.map((u) => (u._id === id ? { ...u, isBlocked: user.isBlocked } : u)))
+      setPatched((p) => ({ ...p, [id]: user }))
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Engelleme başarısız')
     }
@@ -43,7 +39,7 @@ export function AdminUsersPage() {
   async function handleUnblock(id: string) {
     try {
       const { user } = await api.admin.users.unblock(id)
-      setUsers((prev) => prev.map((u) => (u._id === id ? { ...u, isBlocked: user.isBlocked } : u)))
+      setPatched((p) => ({ ...p, [id]: user }))
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Engel kaldırma başarısız')
     }
@@ -54,7 +50,7 @@ export function AdminUsersPage() {
       return
     try {
       await api.admin.users.delete(id)
-      setUsers((prev) => prev.filter((u) => u._id !== id))
+      reset()
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Silme başarısız')
     }
@@ -89,10 +85,7 @@ export function AdminUsersPage() {
             <label className="mb-1 block text-xs text-zinc-400">Rol</label>
             <select
               value={roleFilter}
-              onChange={(e) => {
-                setRoleFilter(e.target.value)
-                setPage(1)
-              }}
+              onChange={(e) => setRoleFilter(e.target.value)}
               className="rounded-lg border border-zinc-600 bg-zinc-700 px-3 py-2 text-sm text-white focus:border-primary-500 focus:outline-none"
             >
               <option value="">Tümü</option>
@@ -127,63 +120,65 @@ export function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((u) => (
+                {users.map((u) => {
+                  const u2 = patched[u._id] ?? u
+                  return (
                   <tr key={u._id} className="border-b border-zinc-700 last:border-0">
                     <td className="px-4 py-3">
                       <Link
-                        to={`/users/${u._id}`}
+                        to={`/users/${u2._id}`}
                         className="font-medium text-primary-400 hover:text-primary-300 hover:underline"
                       >
-                        {u.email}
+                        {u2.email}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-zinc-300">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs ${
-                          u.role === 'admin' ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-600 text-zinc-400'
+                          u2.role === 'admin' ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-600 text-zinc-400'
                         }`}
                       >
-                        {u.role === 'admin' ? 'Admin' : 'Müşteri'}
+                        {u2.role === 'admin' ? 'Admin' : 'Müşteri'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs ${
-                          u.isBlocked ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
+                          u2.isBlocked ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
                         }`}
                       >
-                        {u.isBlocked ? 'Engelli' : 'Aktif'}
+                        {u2.isBlocked ? 'Engelli' : 'Aktif'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-zinc-500">
-                      {new Date(u.createdAt).toLocaleDateString('tr-TR')}
+                      {new Date(u2.createdAt).toLocaleDateString('tr-TR')}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
-                        to={`/users/${u._id}`}
+                        to={`/users/${u2._id}`}
                         className="mr-2 text-sm text-primary-500 hover:underline"
                       >
                         Siparişler
                       </Link>
-                      {u.role !== 'admin' && (
+                      {u2.role !== 'admin' && (
                         <>
-                          {u.isBlocked ? (
+                          {u2.isBlocked ? (
                             <button
-                              onClick={() => handleUnblock(u._id)}
+                              onClick={() => handleUnblock(u2._id)}
                               className="mr-2 text-sm text-green-400 hover:underline"
                             >
                               Engeli kaldır
                             </button>
                           ) : (
                             <button
-                              onClick={() => handleBlock(u._id)}
+                              onClick={() => handleBlock(u2._id)}
                               className="mr-2 text-sm text-amber-400 hover:underline"
                             >
                               Engelle
                             </button>
                           )}
                           <button
-                            onClick={() => handleDelete(u._id, u.email)}
+                            onClick={() => handleDelete(u2._id, u2.email)}
                             className="text-sm text-red-400 hover:underline"
                           >
                             Sil
@@ -192,31 +187,19 @@ export function AdminUsersPage() {
                       )}
                     </td>
                   </tr>
-                ))}
+                )
+                })}
               </tbody>
             </table>
           </div>
-
-          {pagination.pages > 1 && (
-            <div className="mt-6 flex justify-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="rounded-lg border border-zinc-600 px-4 py-2 text-sm font-medium text-zinc-400 disabled:opacity-50 hover:bg-zinc-700 hover:text-white"
-              >
-                Önceki
-              </button>
-              <span className="flex items-center px-4 text-sm text-zinc-400">
-                Sayfa {page} / {pagination.pages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
-                disabled={page >= pagination.pages}
-                className="rounded-lg border border-zinc-600 px-4 py-2 text-sm font-medium text-zinc-400 disabled:opacity-50 hover:bg-zinc-700 hover:text-white"
-              >
-                Sonraki
-              </button>
+          <div ref={sentinelRef} className="h-4" />
+          {loadingMore && (
+            <div className="mt-4 flex justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
             </div>
+          )}
+          {!hasMore && users.length > 0 && (
+            <p className="mt-4 text-center text-sm text-zinc-400">Tüm üyeler görüntülendi</p>
           )}
         </>
       )}
