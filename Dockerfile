@@ -7,20 +7,21 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-ARG VITE_FRONTEND_URL=http://localhost:4000
+ARG VITE_FRONTEND_URL=http://localhost:8000
 ENV VITE_FRONTEND_URL=$VITE_FRONTEND_URL
 RUN npm run build
 
-# Serve
-FROM nginx:alpine
+# Run
+FROM node:20-alpine
 
-RUN apk add --no-cache gettext-envsubst
+WORKDIR /app
 
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY package*.json ./
+RUN npm ci --only=production
 
-EXPOSE 80 8080
+COPY --from=builder /app/dist ./dist
+COPY server.js ./
 
-ENTRYPOINT ["/entrypoint.sh"]
+EXPOSE 8000
+
+CMD ["node", "server.js"]
