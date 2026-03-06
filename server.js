@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = parseInt(process.env.PORT || '8000', 10);
+const PORT = parseInt(process.env.PORT || '8080', 10);
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 
 const app = express();
