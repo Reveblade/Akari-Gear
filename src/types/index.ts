@@ -67,6 +67,17 @@ export interface User {
   twoFactorEnabled?: boolean
 }
 
+export interface AdminUser {
+  _id: string
+  email: string
+  role: string
+  emailVerified: boolean
+  twoFactorEnabled?: boolean
+  isBlocked?: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface AuthResponse {
   user: User
   token: string
@@ -77,4 +88,41 @@ export interface Login2FAResponse {
   requiresTwoFactor: true
   email: string
   message: string
+}
+
+export interface OrderAddress {
+  fullName: string
+  phone: string
+  city: string
+  district: string
+  neighborhood: string
+  address: string
+  postalCode?: string
+}
+
+export interface OrderItem {
+  product: string | { _id: string; name: string; slug: string; images?: string[] }
+  name: string
+  slug: string
+  quantity: number
+  unitPriceUsd: number
+  unitPriceTry: number
+  subtotalTry: number
+}
+
+export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled'
+
+export interface Order {
+  _id: string
+  user: string | { _id: string; email: string }
+  address: OrderAddress
+  items: OrderItem[]
+  subtotalTry: number
+  shippingCostTry: number
+  totalTry: number
+  status: OrderStatus
+  exchangeRateUsdToTry: number
+  exchangeRateDate: string
+  createdAt: string
+  updatedAt: string
 }

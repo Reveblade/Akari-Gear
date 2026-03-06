@@ -13,6 +13,27 @@ export function AdminDashboard() {
           <h3 className="font-semibold text-white">Ürünler</h3>
           <p className="mt-1 text-sm text-zinc-400">Ürün ekle, düzenle veya sil</p>
         </Link>
+        <Link
+          to="/orders"
+          className="rounded-xl border border-zinc-600 bg-zinc-800 p-6 transition hover:border-primary-500 hover:bg-zinc-700"
+        >
+          <h3 className="font-semibold text-white">Siparişler</h3>
+          <p className="mt-1 text-sm text-zinc-400">Siparişleri görüntüle, onayla</p>
+        </Link>
+        <Link
+          to="/users"
+          className="rounded-xl border border-zinc-600 bg-zinc-800 p-6 transition hover:border-primary-500 hover:bg-zinc-700"
+        >
+          <h3 className="font-semibold text-white">Üyeler</h3>
+          <p className="mt-1 text-sm text-zinc-400">Üyeleri görüntüle, engelle veya sil</p>
+        </Link>
+        <Link
+          to="/exchange-rate"
+          className="rounded-xl border border-zinc-600 bg-zinc-800 p-6 transition hover:border-primary-500 hover:bg-zinc-700"
+        >
+          <h3 className="font-semibold text-white">Dolar Kuru</h3>
+          <p className="mt-1 text-sm text-zinc-400">USD/TRY kurunu manuel güncelle</p>
+        </Link>
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 const STORE_URL = import.meta.env.VITE_FRONTEND_URL ?? 'http://localhost:4000'
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { login, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: string })?.from ?? '/'
@@ -22,6 +22,15 @@ export function LoginPage() {
       const result = await login(email, password)
       if ('requiresTwoFactor' in result && result.requiresTwoFactor) {
         navigate('/verify-2fa', { state: { email: result.email, from } })
+        return
+      }
+      const authRes = result as { success: true; user?: { role: string } }
+      if (authRes.success && authRes.user?.role !== 'admin') {
+        logout()
+        setError('Bu panel sadece admin hesapları içindir. Mağaza girişine yönlendiriliyorsunuz.')
+        setTimeout(() => {
+          window.location.href = `${STORE_URL}/login`
+        }, 2000)
         return
       }
       navigate(from)

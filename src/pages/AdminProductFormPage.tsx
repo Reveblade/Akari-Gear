@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link, useMatch } from 'react-router-dom'
 import { api } from '../api/client'
 import { AdminProductForm } from '../components/AdminProductForm'
 import type { Product, Category } from '../types'
@@ -7,7 +7,8 @@ import type { Product, Category } from '../types'
 export function AdminProductFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const isNew = id === 'new'
+  const matchNew = useMatch('/products/new')
+  const isNew = !!matchNew
   const [product, setProduct] = useState<Product | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(!isNew)
