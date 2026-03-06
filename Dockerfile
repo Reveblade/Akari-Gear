@@ -8,16 +8,15 @@ RUN npm ci
 
 COPY . .
 ARG VITE_FRONTEND_URL=http://localhost:8000
+ARG VITE_BACKEND_URL
 ENV VITE_FRONTEND_URL=$VITE_FRONTEND_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
 RUN npm run build
 
 # Run
 FROM node:20-alpine
 
 WORKDIR /app
-
-ARG BACKEND_URL=http://backend:3000
-ENV BACKEND_URL=$BACKEND_URL
 
 COPY package*.json ./
 RUN npm ci --only=production
