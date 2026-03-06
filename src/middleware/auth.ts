@@ -37,6 +37,11 @@ export async function authenticate(
       return;
     }
 
+    if (user.isBlocked) {
+      res.status(403).json({ error: 'Hesabınız engellenmiş' });
+      return;
+    }
+
     req.user = user;
     next();
   } catch {
