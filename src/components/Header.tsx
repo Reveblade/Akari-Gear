@@ -98,7 +98,7 @@ export function Header() {
                     </Link>
                     {user.role === 'admin' && (
                       <a
-                        href={import.meta.env.VITE_ADMIN_URL ?? 'http://localhost:5000'}
+                        href={import.meta.env.VITE_ADMIN_URL ?? 'http://localhost:8001'}
                         className="block px-4 py-2 text-sm text-surface-700 hover:bg-surface-50 dark:text-zinc-300 dark:hover:bg-zinc-700"
                       >
                         Admin Panel
