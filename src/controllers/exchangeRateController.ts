@@ -21,7 +21,7 @@ export async function getLatestRate(
 
     if (!rate) {
       res.status(404).json({
-        error: 'No exchange rate available. Run fetch or seed first.',
+        error: 'Kur verisi bulunamadı.',
       });
       return;
     }
@@ -71,5 +71,44 @@ export async function fetchAndSaveRate(
   } catch (err) {
     console.error('Fetch rate error:', err);
     res.status(500).json({ error: 'Failed to update exchange rate' });
+  }
+}
+
+/**
+ * Manually set USD/TRY rate (admin only). For today's date.
+ */
+export async function setRateManually(
+  req: AuthRequest,
+  res: Response
+): Promise<void> {
+  try {
+    const { usdToTry } = req.body;
+
+    if (typeof usdToTry !== 'number' || usdToTry <= 0) {
+      res.status(400).json({
+        error: 'Geçerli bir kur değeri girin (pozitif sayı)',
+      });
+      return;
+    }
+
+    const today = startOfDay(new Date());
+
+    const rate = await ExchangeRate.findOneAndUpdate(
+      { date: today },
+      { usdToTry, source: 'MANUAL' },
+      { upsert: true, new: true }
+    );
+
+    res.json({
+      message: 'Kur güncellendi',
+      rate: {
+        usdToTry: rate.usdToTry,
+        date: rate.date,
+        source: rate.source,
+      },
+    });
+  } catch (err) {
+    console.error('Set rate error:', err);
+    res.status(500).json({ error: 'Kur güncellenemedi' });
   }
 }

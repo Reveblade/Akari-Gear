@@ -49,19 +49,17 @@ Ensure MongoDB is running locally or use a cloud instance (e.g. MongoDB Atlas).
 
 ### 4. Seed (optional)
 
-Create admin user and initial Mousepads category:
+Create initial admin user:
 
 ```bash
 npm run seed
 ```
 
-Default admin: `admin@mousepad-store.com` / `Admin123!`
+Default admin: `admin@akarigear.com` / `ADmin123.!?`
 
 Override with env vars:
 - `SEED_ADMIN_EMAIL`
 - `SEED_ADMIN_PASSWORD`
-
-Seed also fetches today's USD/TRY from TCMB (or uses fallback 34.5 if unavailable).
 
 ### 5. Start server
 

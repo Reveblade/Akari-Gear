@@ -15,6 +15,7 @@ export interface IUser extends Document {
   twoFactorEnabled: boolean;
   twoFactorCode?: string;
   twoFactorExpires?: Date;
+  isBlocked: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -54,6 +55,10 @@ const userSchema = new Schema<IUser>(
     },
     twoFactorCode: String,
     twoFactorExpires: Date,
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

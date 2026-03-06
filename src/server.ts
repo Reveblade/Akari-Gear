@@ -10,7 +10,7 @@ async function start(): Promise<void> {
 
     scheduleExchangeRateJob();
 
-    app.listen(config.port, () => {
+    app.listen(config.port, '0.0.0.0', () => {
       console.log(`Server running on http://localhost:${config.port}`);
       if (config.env === 'development') {
         console.log(`Email links: reset/verify → ${config.urls.frontend}`);

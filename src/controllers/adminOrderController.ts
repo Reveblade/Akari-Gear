@@ -6,17 +6,51 @@ import { AuthRequest } from '../middleware/auth.js';
 
 export async function listOrders(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const { status } = req.query;
+    const { status, code, page = '1', limit = '20' } = req.query;
+    const pageNum = Math.max(1, parseInt(String(page), 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(String(limit), 10)));
+    const skip = (pageNum - 1) * limitNum;
+
     const filter: Record<string, unknown> = {};
     if (status && typeof status === 'string') filter.status = status;
 
-    const orders = await Order.find(filter)
-      .sort({ createdAt: -1 })
-      .populate('user', 'email')
-      .populate({ path: 'items.product', select: 'name slug images' })
-      .lean();
+    if (code && typeof code === 'string') {
+      const s = code.trim().replace(/^#/, '');
+      if (s.length === 24 && mongoose.Types.ObjectId.isValid(s)) {
+        filter._id = new mongoose.Types.ObjectId(s);
+      } else if (s.length >= 6) {
+        const len = Math.min(8, s.length);
+        const suffix = s.slice(-len).toLowerCase();
+        const idStr = { $toString: '$_id' };
+        filter.$expr = {
+          $eq: [
+            { $toLower: { $substr: [idStr, { $subtract: [{ $strLenCP: idStr }, len] }, -1] } },
+            suffix,
+          ],
+        };
+      }
+    }
 
-    res.json({ orders });
+    const [orders, total] = await Promise.all([
+      Order.find(filter)
+        .sort({ createdAt: -1 })
+        .populate('user', 'email')
+        .populate({ path: 'items.product', select: 'name slug images' })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Order.countDocuments(filter),
+    ]);
+
+    res.json({
+      orders,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
   } catch (err) {
     console.error('Admin list orders error:', err);
     res.status(500).json({ error: 'Siparişler yüklenemedi' });
@@ -101,5 +135,36 @@ export async function updateOrderStatus(req: AuthRequest, res: Response): Promis
   } catch (err) {
     console.error('Admin update order error:', err);
     res.status(500).json({ error: 'Sipariş güncellenemedi' });
+  }
+}
+
+export async function deleteOrder(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ error: 'Geçersiz sipariş ID' });
+      return;
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      res.status(404).json({ error: 'Sipariş bulunamadı' });
+      return;
+    }
+
+    const stockWasDeducted = ['paid', 'shipped', 'delivered'].includes(order.status);
+    if (stockWasDeducted) {
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: item.quantity },
+        });
+      }
+    }
+
+    await Order.findByIdAndDelete(id);
+    res.json({ message: 'Sipariş silindi' });
+  } catch (err) {
+    console.error('Admin delete order error:', err);
+    res.status(500).json({ error: 'Sipariş silinemedi' });
   }
 }
