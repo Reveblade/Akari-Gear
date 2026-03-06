@@ -1,10 +1,16 @@
 # Google Cloud Build - Frontend (Mağaza)
-# Deploy: gcloud builds submit --config=cloudbuild.yaml .
-# BACKEND_URL Cloud Run'da env olarak ayarlanmalı (ilk deploy sonrası)
+# Deploy: gcloud builds submit --config=cloudbuild.yaml --substitutions=_BACKEND_URL=...,_ADMIN_URL=...
+# VITE_ADMIN_URL: Header'daki "Admin Panel" linki için
 
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${_TAG}', '.']
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'VITE_ADMIN_URL=${_ADMIN_URL}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${_TAG}'
+      - '.'
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${SHORT_SHA}']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -23,6 +29,7 @@ substitutions:
   _REPOSITORY: mousepad
   _SERVICE: frontend
   _BACKEND_URL: ''
+  _ADMIN_URL: ''
   _TAG: latest
 options:
   logging: CLOUD_LOGGING_ONLY
