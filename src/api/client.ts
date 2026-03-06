@@ -96,8 +96,24 @@ export const api = {
         fetchApi<{ message: string }>(`/admin/products/${id}`, { method: 'DELETE' }),
     },
     categories: {
-      list: () =>
-        fetchApi<import('../types').CategoriesResponse>('/admin/categories'),
+      list: (params?: { active?: boolean }) => {
+        const qs = params?.active === false ? '?active=false' : ''
+        return fetchApi<import('../types').CategoriesResponse>(`/admin/categories${qs}`)
+      },
+      get: (id: string) =>
+        fetchApi<{ category: import('../types').Category }>(`/admin/categories/${id}`),
+      create: (data: { name: string; slug: string; description?: string; subcategories?: { name: string; slug: string }[] }) =>
+        fetchApi<{ category: import('../types').Category }>('/admin/categories', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      update: (id: string, data: { name?: string; slug?: string; description?: string; subcategories?: { name: string; slug: string }[] }) =>
+        fetchApi<{ category: import('../types').Category }>(`/admin/categories/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+      delete: (id: string) =>
+        fetchApi<{ message: string }>(`/admin/categories/${id}`, { method: 'DELETE' }),
     },
     orders: {
       list: (params?: { status?: string }) => {
@@ -111,6 +127,34 @@ export const api = {
           method: 'PATCH',
           body: JSON.stringify({ status }),
         }),
+    },
+    users: {
+      list: (params?: { page?: number; limit?: number; search?: string; role?: string }) => {
+        const search = new URLSearchParams()
+        if (params?.page) search.set('page', String(params.page))
+        if (params?.limit) search.set('limit', String(params.limit))
+        if (params?.search) search.set('search', params.search)
+        if (params?.role) search.set('role', params.role)
+        const qs = search.toString()
+        return fetchApi<{
+          users: import('../types').AdminUser[]
+          pagination: { page: number; limit: number; total: number; pages: number }
+        }>(`/admin/users${qs ? `?${qs}` : ''}`)
+      },
+      block: (id: string) =>
+        fetchApi<{ message: string; user: import('../types').AdminUser }>(`/admin/users/${id}/block`, {
+          method: 'PATCH',
+        }),
+      unblock: (id: string) =>
+        fetchApi<{ message: string; user: import('../types').AdminUser }>(`/admin/users/${id}/unblock`, {
+          method: 'PATCH',
+        }),
+      delete: (id: string) =>
+        fetchApi<{ message: string }>(`/admin/users/${id}`, { method: 'DELETE' }),
+      get: (id: string) =>
+        fetchApi<{ user: import('../types').AdminUser }>(`/admin/users/${id}`),
+      getOrders: (id: string) =>
+        fetchApi<{ orders: import('../types').Order[] }>(`/admin/users/${id}/orders`),
     },
     uploadImage: async (file: File): Promise<{ url: string }> => {
       const token = getStoredToken()

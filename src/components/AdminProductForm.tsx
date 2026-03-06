@@ -24,6 +24,9 @@ export function AdminProductForm({
     (typeof product?.category === 'object' ? product.category?._id : product?.category) ?? ''
   )
   const [subcategory, setSubcategory] = useState(product?.subcategory ?? '')
+
+  const selectedCategory = categories.find((c) => c._id === categoryId)
+  const subcategories = selectedCategory?.subcategories ?? []
   const [images, setImages] = useState<string[]>(product?.images ?? [])
   const [stock, setStock] = useState(product?.stock?.toString() ?? '0')
   const [isActive, setIsActive] = useState(product?.isActive ?? true)
@@ -32,8 +35,8 @@ export function AdminProductForm({
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
 
-  const generateSlug = useCallback(() => {
-    const s = name
+  const slugify = useCallback((text: string) =>
+    text
       .toLowerCase()
       .replace(/ğ/g, 'g')
       .replace(/ü/g, 'u')
@@ -42,9 +45,8 @@ export function AdminProductForm({
       .replace(/ö/g, 'o')
       .replace(/ç/g, 'c')
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-    setSlug(s)
-  }, [name])
+      .replace(/^-|-$/g, ''),
+  [])
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -107,7 +109,10 @@ export function AdminProductForm({
         <input
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value)
+            setSlug(slugify(e.target.value))
+          }}
           required
           className="w-full rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         />
@@ -115,23 +120,14 @@ export function AdminProductForm({
 
       <div>
         <label className="mb-1 block text-sm font-medium text-zinc-300">Slug</label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            required
-            placeholder="urun-adi"
-            className="flex-1 rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-          />
-          <button
-            type="button"
-            onClick={generateSlug}
-            className="rounded-lg border border-zinc-600 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
-          >
-            Oluştur
-          </button>
-        </div>
+        <input
+          type="text"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          required
+          placeholder="urun-adi (ad yazınca otomatik)"
+          className="w-full rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
       </div>
 
       <div>
@@ -173,11 +169,14 @@ export function AdminProductForm({
         <label className="mb-1 block text-sm font-medium text-zinc-300">Kategori</label>
         <select
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
+          onChange={(e) => {
+            setCategoryId(e.target.value)
+            setSubcategory('')
+          }}
           required
           className="w-full rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
         >
-          <option value="">Seçin</option>
+          <option value="">Kategori seçin</option>
           {categories.map((c) => (
             <option key={c._id} value={c._id}>
               {c.name}
@@ -188,13 +187,18 @@ export function AdminProductForm({
 
       <div>
         <label className="mb-1 block text-sm font-medium text-zinc-300">Alt kategori</label>
-        <input
-          type="text"
+        <select
           value={subcategory}
           onChange={(e) => setSubcategory(e.target.value)}
-          placeholder="Opsiyonel"
           className="w-full rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        />
+        >
+          <option value="">Alt kategori seçin (opsiyonel)</option>
+          {subcategories.map((s) => (
+            <option key={s.slug} value={s.slug}>
+              {s.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

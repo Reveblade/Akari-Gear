@@ -60,6 +60,7 @@ export function AdminOrderDetailPage() {
   }
 
   const userEmail = typeof order.user === 'object' ? order.user?.email : '-'
+  const userId = typeof order.user === 'object' && order.user ? (order.user as { _id?: string })._id : null
 
   return (
     <div>
@@ -67,6 +68,11 @@ export function AdminOrderDetailPage() {
         <Link to="/orders" className="text-zinc-400 hover:text-white">
           ← Siparişler
         </Link>
+        {userId && (
+          <Link to={`/users/${userId}`} className="text-zinc-400 hover:text-white">
+            ← Üye
+          </Link>
+        )}
         <h1 className="font-display text-2xl font-bold text-white">
           Sipariş #{order._id.slice(-6).toUpperCase()}
         </h1>

@@ -67,6 +67,17 @@ export interface User {
   twoFactorEnabled?: boolean
 }
 
+export interface AdminUser {
+  _id: string
+  email: string
+  role: string
+  emailVerified: boolean
+  twoFactorEnabled?: boolean
+  isBlocked?: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface AuthResponse {
   user: User
   token: string
