@@ -101,7 +101,7 @@ export function AdminUserDetailPage() {
                   {orders.map((o) => (
                     <tr key={o._id} className="border-b border-zinc-700 last:border-0">
                       <td className="px-4 py-3 font-mono text-sm text-zinc-300">
-                        #{o._id.slice(-6).toUpperCase()}
+                        #{o._id.slice(-8).toUpperCase()}
                       </td>
                       <td className="px-4 py-3 text-sm text-zinc-400">
                         {new Date(o.createdAt).toLocaleString('tr-TR')}

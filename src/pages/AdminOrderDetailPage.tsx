@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Order } from '../types'
 
@@ -13,9 +13,11 @@ const STATUS_OPTIONS = [
 
 export function AdminOrderDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -37,6 +39,21 @@ export function AdminOrderDetailPage() {
       alert(err instanceof Error ? err.message : 'Güncelleme başarısız')
     } finally {
       setUpdating(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (!id || !order) return
+    if (!confirm(`Sipariş #${order._id.slice(-8).toUpperCase()} kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?`))
+      return
+    setDeleting(true)
+    try {
+      await api.admin.orders.delete(id)
+      navigate('/orders')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Silme başarısız')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -74,7 +91,7 @@ export function AdminOrderDetailPage() {
           </Link>
         )}
         <h1 className="font-display text-2xl font-bold text-white">
-          Sipariş #{order._id.slice(-6).toUpperCase()}
+          Sipariş #{order._id.slice(-8).toUpperCase()}
         </h1>
       </div>
 
@@ -82,21 +99,43 @@ export function AdminOrderDetailPage() {
         {/* Durum */}
         <div className="rounded-xl border border-zinc-600 bg-zinc-800 p-6">
           <h3 className="mb-4 font-semibold text-white">Durum</h3>
-          <div className="flex flex-wrap gap-2">
-            {STATUS_OPTIONS.map((opt) => (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              {STATUS_OPTIONS.filter((opt) => opt.value !== 'cancelled').map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => handleStatusChange(opt.value)}
+                  disabled={updating || order.status === opt.value}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    order.status === opt.value
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 disabled:opacity-50'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
               <button
-                key={opt.value}
-                onClick={() => handleStatusChange(opt.value)}
-                disabled={updating || order.status === opt.value}
+                onClick={() => handleStatusChange('cancelled')}
+                disabled={updating || order.status === 'cancelled'}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                  order.status === opt.value
+                  order.status === 'cancelled'
                     ? 'bg-primary-500 text-white'
                     : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 disabled:opacity-50'
                 }`}
               >
-                {opt.label}
+                İptal
               </button>
-            ))}
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/30 disabled:opacity-50"
+              >
+                {deleting ? '...' : 'Sil'}
+              </button>
+            </div>
           </div>
           {order.status === 'pending' && (
             <p className="mt-3 text-xs text-amber-400">

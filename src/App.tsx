@@ -9,6 +9,7 @@ import { AdminOrderDetailPage } from './pages/AdminOrderDetailPage'
 import { AdminUsersPage } from './pages/AdminUsersPage'
 import { AdminUserDetailPage } from './pages/AdminUserDetailPage'
 import { AdminCategoriesPage } from './pages/AdminCategoriesPage'
+import { AdminExchangeRatePage } from './pages/AdminExchangeRatePage'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="users" element={<AdminUsersPage />} />
         <Route path="users/:id" element={<AdminUserDetailPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
+        <Route path="exchange-rate" element={<AdminExchangeRatePage />} />
       </Route>
     </Routes>
   )

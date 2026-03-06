@@ -57,6 +57,12 @@ export function AdminLayout() {
           >
             Kategoriler
           </Link>
+          <Link
+            to="/exchange-rate"
+            className="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white"
+          >
+            Dolar Kuru
+          </Link>
           <a
             href={STORE_URL}
             className="mt-4 rounded-lg px-3 py-2 text-sm text-zinc-400 hover:bg-zinc-700 hover:text-white"

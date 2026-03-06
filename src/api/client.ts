@@ -116,9 +116,12 @@ export const api = {
         fetchApi<{ message: string }>(`/admin/categories/${id}`, { method: 'DELETE' }),
     },
     orders: {
-      list: (params?: { status?: string }) => {
-        const qs = params?.status ? `?status=${params.status}` : ''
-        return fetchApi<{ orders: import('../types').Order[] }>(`/admin/orders${qs}`)
+      list: (params?: { status?: string; code?: string }) => {
+        const search = new URLSearchParams()
+        if (params?.status) search.set('status', params.status)
+        if (params?.code) search.set('code', params.code)
+        const qs = search.toString()
+        return fetchApi<{ orders: import('../types').Order[] }>(`/admin/orders${qs ? `?${qs}` : ''}`)
       },
       get: (id: string) =>
         fetchApi<{ order: import('../types').Order }>(`/admin/orders/${id}`),
@@ -127,6 +130,8 @@ export const api = {
           method: 'PATCH',
           body: JSON.stringify({ status }),
         }),
+      delete: (id: string) =>
+        fetchApi<{ message: string }>(`/admin/orders/${id}`, { method: 'DELETE' }),
     },
     users: {
       list: (params?: { page?: number; limit?: number; search?: string; role?: string }) => {
@@ -155,6 +160,20 @@ export const api = {
         fetchApi<{ user: import('../types').AdminUser }>(`/admin/users/${id}`),
       getOrders: (id: string) =>
         fetchApi<{ orders: import('../types').Order[] }>(`/admin/users/${id}/orders`),
+    },
+    exchangeRate: {
+      get: () =>
+        fetchApi<{ rate: { usdToTry: number; date: string; source: string } }>('/exchange-rate'),
+      fetch: () =>
+        fetchApi<{ message: string; rate: { usdToTry: number; date: string; source: string } }>(
+          '/exchange-rate/fetch',
+          { method: 'POST' }
+        ),
+      set: (usdToTry: number) =>
+        fetchApi<{ message: string; rate: { usdToTry: number; date: string; source: string } }>(
+          '/exchange-rate/set',
+          { method: 'POST', body: JSON.stringify({ usdToTry }) }
+        ),
     },
     uploadImage: async (file: File): Promise<{ url: string }> => {
       const token = getStoredToken()

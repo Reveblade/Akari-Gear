@@ -15,29 +15,68 @@ export function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [codeSearch, setCodeSearch] = useState('')
+  const [codeInput, setCodeInput] = useState('')
 
   useEffect(() => {
+    setLoading(true)
+    const params: { status?: string; code?: string } = {}
+    if (statusFilter) params.status = statusFilter
+    if (codeSearch.trim()) params.code = codeSearch.trim()
     api.admin.orders
-      .list(statusFilter ? { status: statusFilter } : undefined)
+      .list(Object.keys(params).length ? params : undefined)
       .then((res) => setOrders(res.orders))
       .catch(() => setOrders([]))
       .finally(() => setLoading(false))
-  }, [statusFilter])
+  }, [statusFilter, codeSearch])
+
+  function handleCodeSearch(e: React.FormEvent) {
+    e.preventDefault()
+    setCodeSearch(codeInput.trim())
+  }
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-display text-2xl font-bold text-white">Siparişler</h1>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-white focus:border-primary-500 focus:outline-none"
-        >
-          <option value="">Tümü</option>
-          {Object.entries(STATUS_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
-          ))}
-        </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <form onSubmit={handleCodeSearch} className="flex gap-2">
+            <input
+              type="text"
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value)}
+              placeholder="Sipariş kodu (örn: A1B2C3D4)"
+              className="w-40 rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary-500 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white hover:bg-primary-600"
+            >
+              Ara
+            </button>
+          </form>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-white focus:border-primary-500 focus:outline-none"
+          >
+            <option value="">Tümü</option>
+            {Object.entries(STATUS_LABELS).map(([v, l]) => (
+              <option key={v} value={v}>{l}</option>
+            ))}
+          </select>
+          {(codeSearch || codeInput) && (
+            <button
+              onClick={() => {
+                setCodeSearch('')
+                setCodeInput('')
+              }}
+              className="rounded-lg border border-zinc-600 px-3 py-2 text-sm text-zinc-400 hover:bg-zinc-700 hover:text-white"
+            >
+              Filtreleri temizle
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -63,7 +102,7 @@ export function AdminOrdersPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-white">
-                      #{order._id.slice(-6).toUpperCase()} — {userEmail}
+                      #{order._id.slice(-8).toUpperCase()} — {userEmail}
                     </p>
                     <p className="mt-1 text-sm text-zinc-400">
                       {order.items.length} ürün · ₺{order.totalTry.toLocaleString()} ·{' '}
