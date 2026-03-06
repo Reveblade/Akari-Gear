@@ -17,8 +17,9 @@ steps:
       - '--region=${_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
-      - '--port=8080'
-      - '--set-env-vars=NODE_ENV=production,PORT=8080'
+      - '--no-use-http2'
+      - '--startup-probe=path=/,httpGet.port=8080'
+      - '--set-env-vars=NODE_ENV=production'
 substitutions:
   _REGION: europe-west1
   _REPOSITORY: mousepad
