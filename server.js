@@ -5,12 +5,12 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '8080', 10);
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
+const VITE_BACKEND_URL = process.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 const app = express();
 
-app.use('/api', createProxyMiddleware({ target: BACKEND_URL, changeOrigin: true }));
-app.use('/uploads', createProxyMiddleware({ target: BACKEND_URL, changeOrigin: true }));
+app.use('/api', createProxyMiddleware({ target: VITE_BACKEND_URL, changeOrigin: true }));
+app.use('/uploads', createProxyMiddleware({ target: VITE_BACKEND_URL, changeOrigin: true }));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')));
 
