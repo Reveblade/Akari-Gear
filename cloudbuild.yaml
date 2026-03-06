@@ -23,8 +23,8 @@ steps:
       - '--region=${_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
-      - '--port=8000'
-      - '--set-env-vars=PORT=8000,BACKEND_URL=${_BACKEND_URL}'
+      - '--no-use-http2'
+      - '--set-env-vars=BACKEND_URL=${_BACKEND_URL}'
 substitutions:
   _REGION: europe-west1
   _REPOSITORY: mousepad
