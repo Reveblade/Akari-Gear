@@ -18,6 +18,8 @@ export function AdminOrderDetailPage() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [applyingDiscount, setApplyingDiscount] = useState(false)
+  const [discountInput, setDiscountInput] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -40,6 +42,30 @@ export function AdminOrderDetailPage() {
     } finally {
       setUpdating(false)
     }
+  }
+
+  async function handleApplyDiscount(percentOverride?: number) {
+    if (!id || !order) return
+    const percent =
+      percentOverride != null ? percentOverride : parseFloat(discountInput.replace(',', '.'))
+    if (Number.isNaN(percent) || percent < 0 || percent > 100) {
+      alert('Geçerli bir yüzde girin (0-100)')
+      return
+    }
+    setApplyingDiscount(true)
+    try {
+      const { order: updated } = await api.admin.orders.applyDiscount(id, percent)
+      setOrder(updated)
+      setDiscountInput('')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'İndirim uygulanamadı')
+    } finally {
+      setApplyingDiscount(false)
+    }
+  }
+
+  function handleRemoveDiscount() {
+    handleApplyDiscount(0)
   }
 
   async function handleDelete() {
@@ -201,6 +227,47 @@ export function AdminOrderDetailPage() {
           <div className="flex justify-between">
             <span className="text-zinc-400">Kargo</span>
             <span className="text-white">₺{order.shippingCostTry.toLocaleString()}</span>
+          </div>
+          {order.discountPercent != null && order.discountPercent > 0 && (
+            <div className="flex items-center justify-between text-green-400">
+              <span>İndirim (%{order.discountPercent})</span>
+              <div className="flex items-center gap-2">
+                <span>
+                  -₺
+                  {(
+                    (order.subtotalTry + order.shippingCostTry) *
+                    (order.discountPercent / 100)
+                  ).toLocaleString()}
+                </span>
+                <button
+                  onClick={handleRemoveDiscount}
+                  disabled={applyingDiscount}
+                  className="rounded bg-zinc-600 px-2 py-1 text-xs text-zinc-300 transition hover:bg-zinc-500 disabled:opacity-50"
+                >
+                  İndirimi kaldır
+                </button>
+              </div>
+            </div>
+          )}
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-zinc-700 pt-4">
+            <span className="text-sm text-zinc-500">Tek seferlik indirim:</span>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              step={0.5}
+              placeholder="%"
+              value={discountInput}
+              onChange={(e) => setDiscountInput(e.target.value)}
+              className="w-20 rounded-lg border border-zinc-600 bg-zinc-700 px-3 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:border-primary-500 focus:outline-none"
+            />
+            <button
+              onClick={() => handleApplyDiscount()}
+              disabled={applyingDiscount || !discountInput.trim()}
+              className="rounded-lg bg-primary-500 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-primary-600 disabled:opacity-50"
+            >
+              {applyingDiscount ? '...' : 'Uygula'}
+            </button>
           </div>
           <div className="mt-2 flex justify-between text-lg font-semibold">
             <span className="text-white">Toplam</span>

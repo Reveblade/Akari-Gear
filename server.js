@@ -11,6 +11,7 @@ const app = express();
 
 app.use('/api', createProxyMiddleware({ target: VITE_BACKEND_URL, changeOrigin: true }));
 app.use(express.static(path.join(__dirname, 'dist')));
+app.get('/favicon.ico', (_req, res) => res.redirect(301, '/transparent-logo.png'));
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')));
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Server on port ${PORT}`));
