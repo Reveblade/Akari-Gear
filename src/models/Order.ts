@@ -29,6 +29,7 @@ export interface IOrder extends Document {
   subtotalTry: number;
   shippingCostTry: number;
   totalTry: number;
+  discountPercent?: number;
   status: OrderStatus;
   exchangeRateUsdToTry: number;
   exchangeRateDate: Date;
@@ -84,6 +85,7 @@ const orderSchema = new Schema<IOrder>(
     subtotalTry: { type: Number, required: true, min: 0 },
     shippingCostTry: { type: Number, default: 0, min: 0 },
     totalTry: { type: Number, required: true, min: 0 },
+    discountPercent: { type: Number, min: 0, max: 100 },
     status: {
       type: String,
       enum: ['pending', 'paid', 'shipped', 'delivered', 'cancelled'],
