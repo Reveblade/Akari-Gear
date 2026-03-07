@@ -138,6 +138,49 @@ export async function updateOrderStatus(req: AuthRequest, res: Response): Promis
   }
 }
 
+export async function applyDiscount(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const { discountPercent } = req.body;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ error: 'Geçersiz sipariş ID' });
+      return;
+    }
+
+    const percent = typeof discountPercent === 'number'
+      ? discountPercent
+      : parseFloat(String(discountPercent || 0));
+
+    if (Number.isNaN(percent) || percent < 0 || percent > 100) {
+      res.status(400).json({ error: 'İndirim oranı 0-100 arasında olmalıdır' });
+      return;
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      res.status(404).json({ error: 'Sipariş bulunamadı' });
+      return;
+    }
+
+    const originalTotal = order.subtotalTry + order.shippingCostTry;
+    const discountAmount = originalTotal * (percent / 100);
+    order.discountPercent = percent;
+    order.totalTry = Math.round((originalTotal - discountAmount) * 100) / 100;
+    await order.save();
+
+    const populated = await Order.findById(order._id)
+      .populate('user', 'email')
+      .populate({ path: 'items.product', select: 'name slug images' })
+      .lean();
+
+    res.json({ order: populated });
+  } catch (err) {
+    console.error('Admin apply discount error:', err);
+    res.status(500).json({ error: 'İndirim uygulanamadı' });
+  }
+}
+
 export async function deleteOrder(req: AuthRequest, res: Response): Promise<void> {
   try {
     const { id } = req.params;
