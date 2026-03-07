@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { ProductImageCarousel } from '../components/ProductImageCarousel'
+import { SEO } from '../components/SEO'
 import type { Product } from '../types'
 
 export function ProductDetailPage() {
@@ -59,8 +60,34 @@ export function ProductDetailPage() {
     ? product.category.name
     : ''
 
+  const SITE_URL = import.meta.env.VITE_SITE_URL ?? (typeof window !== 'undefined' ? window.location.origin : 'https://akarigear.com')
+  const productUrl = `${SITE_URL.replace(/\/$/, '')}/products/${product.slug}`
+  const productImage = product.images?.[0]?.startsWith('http') ? product.images[0] : product.images?.[0] ? `${SITE_URL.replace(/\/$/, '')}${product.images[0].startsWith('/') ? '' : '/'}${product.images[0]}` : undefined
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    image: product.images ?? [],
+    url: productUrl,
+    offers: {
+      '@type': 'Offer',
+      price: product.priceTry ?? product.price,
+      priceCurrency: 'TRY',
+      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <SEO
+        title={product.name}
+        description={product.description}
+        image={productImage}
+        path={`/products/${product.slug}`}
+        type="product"
+        jsonLd={productJsonLd}
+      />
       <nav className="mb-8 text-sm text-surface-400 dark:text-zinc-500">
         <Link to="/" className="hover:text-primary-600">Ana Sayfa</Link>
         <span className="mx-2">/</span>

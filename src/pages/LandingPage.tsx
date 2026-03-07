@@ -2,8 +2,20 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Carousel } from '../components/Carousel'
 import { ProductCard } from '../components/ProductCard'
+import { SEO } from '../components/SEO'
 import { api } from '../api/client'
 import type { Product, Category } from '../types'
+
+const SITE_URL = import.meta.env.VITE_SITE_URL ?? (typeof window !== 'undefined' ? window.location.origin : 'https://akarigear.com')
+
+const ORGANIZATION_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Akari Gear',
+  url: SITE_URL,
+  logo: `${SITE_URL.replace(/\/$/, '')}/transparent-logo.png`,
+  description: "Oyun ve verimlilik için premium mousepad'ler.",
+}
 
 const HERO_SLIDES = [
   {
@@ -52,6 +64,7 @@ export function LandingPage() {
 
   return (
     <div>
+      <SEO jsonLd={ORGANIZATION_JSON_LD} />
       {/* Hero Carousel */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Carousel autoPlay interval={5000}>
