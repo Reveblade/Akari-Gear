@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ProductCard } from '../components/ProductCard'
+import { SEO } from '../components/SEO'
 import { api } from '../api/client'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 import type { Product, Category } from '../types'
@@ -52,6 +53,11 @@ export function ProductsPage() {
 
   return (
     <div className="mx-auto max-w-7xl min-w-0 px-4 py-8 sm:px-6 lg:px-8">
+      <SEO
+        title="Ürünler"
+        description="Premium oyun ve verimlilik mousepad'leri. Kategorilere göre filtreleyin, en uygun fiyatlı ürünleri keşfedin."
+        path="/products"
+      />
       <div className="flex min-w-0 flex-col gap-8 lg:flex-row">
         {/* Filters Sidebar */}
         <aside className="w-full min-w-0 shrink-0 lg:w-64">

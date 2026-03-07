@@ -1,0 +1,13 @@
+# Update Sitemap URL to your production domain (e.g. https://yoursite.com/sitemap.xml)
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /verify-2fa
+Disallow: /cart
+Disallow: /orders
+
+Sitemap: https://akarigear.com/sitemap.xml
