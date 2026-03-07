@@ -120,6 +120,7 @@ export interface Order {
   subtotalTry: number
   shippingCostTry: number
   totalTry: number
+  discountPercent?: number
   status: OrderStatus
   exchangeRateUsdToTry: number
   exchangeRateDate: string

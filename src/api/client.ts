@@ -137,6 +137,11 @@ export const api = {
           method: 'PATCH',
           body: JSON.stringify({ status }),
         }),
+      applyDiscount: (id: string, discountPercent: number) =>
+        fetchApi<{ order: import('../types').Order }>(`/admin/orders/${id}/discount`, {
+          method: 'PATCH',
+          body: JSON.stringify({ discountPercent }),
+        }),
       delete: (id: string) =>
         fetchApi<{ message: string }>(`/admin/orders/${id}`, { method: 'DELETE' }),
     },
