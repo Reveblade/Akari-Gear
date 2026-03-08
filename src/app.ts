@@ -13,8 +13,8 @@ import adminRoutes from './routes/admin/index.js';
 
 const app = express();
 
-// Required for Cloud Run: trust proxy so express-rate-limit can identify client IPs
-app.set('trust proxy', true);
+// Trust only the first proxy hop (Cloud Run load balancer)
+app.set('trust proxy', 1);
 
 const allowedOrigins = [config.urls.frontend, config.urls.admin].filter(Boolean);
 
