@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { ProductImageCarousel } from '../components/ProductImageCarousel'
+import { FormattedDescription } from '../components/FormattedDescription'
 import { SEO } from '../components/SEO'
 import type { Product } from '../types'
 
@@ -109,7 +110,7 @@ export function ProductDetailPage() {
             </span>
           )}
           <h1 className="mt-2 font-display text-3xl font-bold text-surface-800 dark:text-zinc-100">{product.name}</h1>
-          <p className="mt-4 text-surface-500 dark:text-zinc-400">{product.description}</p>
+          <FormattedDescription text={product.description} className="mt-4 text-surface-500 dark:text-zinc-400" />
 
           <div className="mt-6">
             {price != null ? (

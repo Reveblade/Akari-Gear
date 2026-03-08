@@ -14,6 +14,10 @@ import { Verify2FAPage } from './pages/Verify2FAPage'
 import { CartPage } from './pages/CartPage'
 import { MyOrdersPage } from './pages/MyOrdersPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
+import { ContactPage } from './pages/ContactPage'
+import { PrivacyPage } from './pages/PrivacyPage'
+import { TermsPage } from './pages/TermsPage'
+import { FAQPage } from './pages/FAQPage'
 
 export default function App() {
   return (
@@ -37,6 +41,10 @@ export default function App() {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/orders" element={<MyOrdersPage />} />
                 <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+                <Route path="/iletisim" element={<ContactPage />} />
+                <Route path="/gizlilik" element={<PrivacyPage />} />
+                <Route path="/kosullar" element={<TermsPage />} />
+                <Route path="/sss" element={<FAQPage />} />
               </Routes>
             </main>
             <Footer />

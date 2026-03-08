@@ -26,15 +26,31 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-surface-600 dark:text-zinc-400">Destek</h4>
             <ul className="mt-3 space-y-2">
-              <li><span className="text-sm text-surface-400 dark:text-zinc-500">İletişim</span></li>
-              <li><span className="text-sm text-surface-400 dark:text-zinc-500">SSS</span></li>
+              <li>
+                <Link to="/iletisim" className="text-sm text-surface-400 hover:text-primary-600 dark:text-zinc-500 dark:hover:text-primary-400">
+                  İletişim
+                </Link>
+              </li>
+              <li>
+                <Link to="/sss" className="text-sm text-surface-400 hover:text-primary-600 dark:text-zinc-500 dark:hover:text-primary-400">
+                  SSS
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-surface-600 dark:text-zinc-400">Yasal</h4>
             <ul className="mt-3 space-y-2">
-              <li><span className="text-sm text-surface-400 dark:text-zinc-500">Gizlilik</span></li>
-              <li><span className="text-sm text-surface-400 dark:text-zinc-500">Koşullar</span></li>
+              <li>
+                <Link to="/gizlilik" className="text-sm text-surface-400 hover:text-primary-600 dark:text-zinc-500 dark:hover:text-primary-400">
+                  Gizlilik
+                </Link>
+              </li>
+              <li>
+                <Link to="/kosullar" className="text-sm text-surface-400 hover:text-primary-600 dark:text-zinc-500 dark:hover:text-primary-400">
+                  Koşullar
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
