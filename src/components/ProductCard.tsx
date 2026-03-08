@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { FormattedDescription } from './FormattedDescription'
 import type { Product } from '../types'
 
 interface ProductCardProps {
@@ -63,7 +64,11 @@ export function ProductCard({ product, compact }: ProductCardProps) {
           {product.name}
         </h3>
         {!compact && (
-          <p className="mt-1 line-clamp-2 text-sm text-surface-400 dark:text-zinc-500">{product.description}</p>
+          <FormattedDescription
+            text={product.description}
+            className="mt-1 text-sm text-surface-400 dark:text-zinc-500"
+            lineClamp="line-clamp-2"
+          />
         )}
         <div className={`flex items-center justify-between gap-2 ${compact ? 'mt-2' : 'mt-3'}`}>
           {price != null ? (

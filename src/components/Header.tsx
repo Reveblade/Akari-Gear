@@ -27,7 +27,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-surface-200/80 bg-white/95 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="font-display text-xl font-semibold text-primary-600 dark:text-primary-400">
+        <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold text-primary-600 dark:text-primary-400">
+          <img src="/transparent-logo.png" alt="Akari Gear" className="h-8 w-8" />
           Akari Gear
         </Link>
         <nav className="flex items-center gap-6">
