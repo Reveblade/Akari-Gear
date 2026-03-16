@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { Cart } from '../models/Cart.js';
 import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
-import { ExchangeRate } from '../models/ExchangeRate.js';
+import { getLatestExchangeRate } from '../services/exchangeRateCache.js';
 import { usdToTryRoundUp } from '../utils/currency.js';
 import { AuthRequest } from '../middleware/auth.js';
 
@@ -56,7 +56,7 @@ export async function createOrder(req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    const rate = await ExchangeRate.findOne().sort({ date: -1 }).lean();
+    const rate = await getLatestExchangeRate();
     if (!rate) {
       res.status(503).json({ error: 'Döviz kuru yüklenemedi. Lütfen daha sonra tekrar deneyin.' });
       return;

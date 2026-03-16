@@ -10,7 +10,10 @@ const server = app.listen(config.port, '0.0.0.0', () => {
 
 async function connectDb(): Promise<void> {
   try {
-    await mongoose.connect(config.mongodbUri);
+    await mongoose.connect(config.mongodbUri, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+    });
     console.log('MongoDB connected');
     scheduleExchangeRateJob();
     if (config.env === 'development') {

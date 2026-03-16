@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import mongoose from 'mongoose';
 import { Product } from '../models/Product.js';
-import { ExchangeRate } from '../models/ExchangeRate.js';
+import { getLatestExchangeRate } from '../services/exchangeRateCache.js';
 import { usdToTryRoundUp } from '../utils/currency.js';
 import { AuthRequest } from '../middleware/auth.js';
 
@@ -59,7 +59,7 @@ export async function listProducts(
         .limit(Number(limit))
         .lean(),
       Product.countDocuments(query),
-      wantTry ? ExchangeRate.findOne().sort({ date: -1 }).lean() : null,
+      wantTry ? getLatestExchangeRate() : null,
     ]);
 
     let payload: unknown = products;
@@ -112,7 +112,7 @@ export async function getProduct(
 
     let payload: Record<string, unknown> = product as Record<string, unknown>;
     if (wantTry) {
-      const rate = await ExchangeRate.findOne().sort({ date: -1 }).lean();
+      const rate = await getLatestExchangeRate();
       if (rate) {
         payload = {
           ...product,
@@ -141,8 +141,10 @@ export async function createProduct(
     }
 
     const product = await Product.create(req.body);
-    await product.populate('category', 'name slug');
-    res.status(201).json({ product });
+    const populated = await Product.findById(product._id)
+      .populate('category', 'name slug')
+      .lean();
+    res.status(201).json({ product: populated });
   } catch (err) {
     console.error('Create product error:', err);
     res.status(500).json({ error: 'Failed to create product' });
@@ -165,7 +167,9 @@ export async function updateProduct(
       id,
       { $set: req.body },
       { new: true, runValidators: true }
-    ).populate('category', 'name slug');
+    )
+      .populate('category', 'name slug')
+      .lean();
 
     if (!product) {
       res.status(404).json({ error: 'Product not found' });

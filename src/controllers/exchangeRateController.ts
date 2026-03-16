@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { ExchangeRate } from '../models/ExchangeRate.js';
 import { fetchUsdToTryFromTcmb } from '../services/exchangeRateService.js';
+import { getLatestExchangeRate, invalidateExchangeRateCache } from '../services/exchangeRateCache.js';
 import { AuthRequest } from '../middleware/auth.js';
 
 function startOfDay(date: Date): Date {
@@ -17,7 +18,7 @@ export async function getLatestRate(
   res: Response
 ): Promise<void> {
   try {
-    const rate = await ExchangeRate.findOne().sort({ date: -1 }).lean();
+    const rate = await getLatestExchangeRate();
 
     if (!rate) {
       res.status(404).json({
@@ -63,6 +64,7 @@ export async function fetchAndSaveRate(
       { usdToTry, source: 'TCMB' },
       { upsert: true, new: true }
     );
+    invalidateExchangeRateCache();
 
     res.json({
       message: 'Exchange rate updated',
@@ -98,6 +100,7 @@ export async function setRateManually(
       { usdToTry, source: 'MANUAL' },
       { upsert: true, new: true }
     );
+    invalidateExchangeRateCache();
 
     res.json({
       message: 'Kur güncellendi',

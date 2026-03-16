@@ -109,17 +109,27 @@ export async function updateOrderStatus(req: AuthRequest, res: Response): Promis
 
     if (status === 'paid' && previousStatus === 'pending') {
       // Stoktan düş (sadece pending -> paid geçişinde, tek sefer)
-      for (const item of order.items) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: -item.quantity },
-        })
+      if (order.items.length > 0) {
+        await Product.bulkWrite(
+          order.items.map((item) => ({
+            updateOne: {
+              filter: { _id: item.product },
+              update: { $inc: { stock: -item.quantity } },
+            },
+          }))
+        )
       }
     } else if ((status === 'pending' || status === 'cancelled') && stockWasDeducted) {
       // İptal veya beklemede'ye geri alındığında stoğa geri ekle
-      for (const item of order.items) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: item.quantity },
-        })
+      if (order.items.length > 0) {
+        await Product.bulkWrite(
+          order.items.map((item) => ({
+            updateOne: {
+              filter: { _id: item.product },
+              update: { $inc: { stock: item.quantity } },
+            },
+          }))
+        )
       }
     }
 
@@ -196,12 +206,15 @@ export async function deleteOrder(req: AuthRequest, res: Response): Promise<void
     }
 
     const stockWasDeducted = ['paid', 'shipped', 'delivered'].includes(order.status)
-    if (stockWasDeducted) {
-      for (const item of order.items) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: item.quantity },
-        })
-      }
+    if (stockWasDeducted && order.items.length > 0) {
+      await Product.bulkWrite(
+        order.items.map((item) => ({
+          updateOne: {
+            filter: { _id: item.product },
+            update: { $inc: { stock: item.quantity } },
+          },
+        }))
+      )
     }
 
     await Order.findByIdAndDelete(id)

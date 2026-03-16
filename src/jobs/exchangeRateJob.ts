@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import { ExchangeRate } from '../models/ExchangeRate.js';
 import { fetchUsdToTryFromTcmb } from '../services/exchangeRateService.js';
+import { invalidateExchangeRateCache } from '../services/exchangeRateCache.js';
 
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -22,6 +23,7 @@ async function runFetch(): Promise<void> {
       { usdToTry, source: 'TCMB' },
       { upsert: true }
     );
+    invalidateExchangeRateCache();
     console.log(`[ExchangeRate] Updated USD/TRY: ${usdToTry} (${today.toISOString().slice(0, 10)})`);
   } catch (err) {
     console.error('[ExchangeRate] Job error:', err);

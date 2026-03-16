@@ -12,7 +12,7 @@ export async function listCategories(
     const activeOnly = req.query.active !== 'false';
     const query = activeOnly ? { isActive: true } : {};
 
-    const categories = await Category.find(query).sort({ sortOrder: 1, name: 1 });
+    const categories = await Category.find(query).sort({ sortOrder: 1, name: 1 }).lean();
     res.json({ categories });
   } catch (err) {
     console.error('List categories error:', err);
@@ -32,7 +32,7 @@ export async function getCategory(
         : { slug };
     if (req.user?.role !== 'admin') filter.isActive = true;
 
-    const category = await Category.findOne(filter);
+    const category = await Category.findOne(filter).lean();
 
     if (!category) {
       res.status(404).json({ error: 'Category not found' });

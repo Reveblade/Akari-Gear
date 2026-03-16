@@ -414,12 +414,7 @@ export async function enable2FA(req: AuthRequest, res: Response): Promise<void> 
       return
     }
 
-    const user = await User.findById(req.user._id)
-    if (!user) {
-      res.status(404).json({ error: 'User not found' })
-      return
-    }
-
+    const user = req.user
     if (user.twoFactorEnabled) {
       res.status(400).json({ error: '2FA is already enabled' })
       return
@@ -451,12 +446,7 @@ export async function disable2FA(req: AuthRequest, res: Response): Promise<void>
       return
     }
 
-    const user = await User.findById(req.user._id)
-    if (!user) {
-      res.status(404).json({ error: 'User not found' })
-      return
-    }
-
+    const user = req.user
     if (!user.twoFactorEnabled) {
       res.status(400).json({ error: '2FA is not enabled' })
       return
@@ -490,14 +480,14 @@ export async function getMe(req: AuthRequest, res: Response): Promise<void> {
       return
     }
 
-    const user = await User.findById(req.user._id)
+    const u = req.user
     res.json({
       user: {
-        id: req.user._id,
-        email: req.user.email,
-        role: req.user.role,
-        emailVerified: req.user.emailVerified,
-        twoFactorEnabled: user?.twoFactorEnabled ?? false,
+        id: u._id,
+        email: u.email,
+        role: u.role,
+        emailVerified: u.emailVerified,
+        twoFactorEnabled: u.twoFactorEnabled ?? false,
       },
     })
   } catch (err) {

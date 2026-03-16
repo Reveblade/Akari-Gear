@@ -2,7 +2,7 @@ import { Response } from 'express';
 import mongoose from 'mongoose';
 import { Cart } from '../models/Cart.js';
 import { Product } from '../models/Product.js';
-import { ExchangeRate } from '../models/ExchangeRate.js';
+import { getLatestExchangeRate } from '../services/exchangeRateCache.js';
 import { usdToTryRoundUp } from '../utils/currency.js';
 import { AuthRequest } from '../middleware/auth.js';
 
@@ -30,7 +30,7 @@ export async function getCart(req: AuthRequest, res: Response): Promise<void> {
     const wantTry = currency?.toUpperCase() === 'TRY';
 
     const rawItems = cart.items.filter((i) => i.product != null);
-    const rate = wantTry ? await ExchangeRate.findOne().sort({ date: -1 }).lean() : null;
+    const rate = wantTry ? await getLatestExchangeRate() : null;
 
     const items = rawItems.map((i) => {
       const p = i.product as unknown as { _id: string; name: string; slug: string; price: number };
@@ -63,7 +63,9 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
       return;
     }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId)
+      .select('name slug price stock isActive')
+      .lean();
     if (!product || !product.isActive) {
       res.status(404).json({ error: 'Product not found' });
       return;
@@ -100,7 +102,7 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
       .populate({ path: 'items.product', select: 'name slug price images' })
       .lean();
 
-    const rate = await ExchangeRate.findOne().sort({ date: -1 }).lean();
+    const rate = await getLatestExchangeRate();
     const items = (updated?.items ?? []).map((i) => {
       const p = i.product as unknown as { _id: string; name: string; slug: string; price: number };
       if (!p || typeof p !== 'object' || !('name' in p)) return null;
@@ -136,7 +138,9 @@ export async function updateCartItem(req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId)
+      .select('name slug price stock isActive')
+      .lean();
     if (!product || product.stock < quantity) {
       res.status(400).json({ error: 'Insufficient stock' });
       return;
