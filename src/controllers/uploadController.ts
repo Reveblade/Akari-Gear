@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
-import { cloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
+import { CLOUDINARY_PRODUCTS_FOLDER, cloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 export async function uploadImage(req: AuthRequest, res: Response): Promise<void> {
   try {
@@ -16,7 +16,7 @@ export async function uploadImage(req: AuthRequest, res: Response): Promise<void
 
     const b64 = req.file.buffer.toString('base64');
     const dataUri = `data:${req.file.mimetype};base64,${b64}`;
-    const result = await cloudinary.uploader.upload(dataUri, { folder: 'products' });
+    const result = await cloudinary.uploader.upload(dataUri, { folder: CLOUDINARY_PRODUCTS_FOLDER });
     res.status(201).json({ url: result.secure_url });
   } catch (err) {
     console.error('Upload error:', err);

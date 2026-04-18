@@ -12,5 +12,8 @@ if (cloudName && apiKey && apiSecret) {
   });
 }
 
+/** Folder path for product images in Cloudinary (public IDs are prefixed with this). */
+export const CLOUDINARY_PRODUCTS_FOLDER = 'akarigear/products';
+
 export { cloudinary };
 export const isCloudinaryConfigured = Boolean(cloudName && apiKey && apiSecret);
