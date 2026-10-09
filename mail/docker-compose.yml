@@ -1,0 +1,93 @@
+# Mailu - Self-hosted mail server with webmail
+# Docs: https://mailu.io/
+# Setup: cp mailu.env .env, edit .env, then: docker compose up -d
+
+services:
+  front:
+    image: ghcr.io/mailu/nginx:2.0
+    restart: always
+    env_file: .env
+    dns: 1.1.1.1
+    ports:
+      - "${BIND_ADDRESS4:-127.0.0.1}:8080:80"
+      - "${BIND_ADDRESS4:-127.0.0.1}:8443:443"
+      - "${BIND_ADDRESS4:-127.0.0.1}:25:25"
+      - "${BIND_ADDRESS4:-127.0.0.1}:465:465"
+      - "${BIND_ADDRESS4:-127.0.0.1}:587:587"
+      - "${BIND_ADDRESS4:-127.0.0.1}:110:110"
+      - "${BIND_ADDRESS4:-127.0.0.1}:143:143"
+      - "${BIND_ADDRESS4:-127.0.0.1}:993:993"
+      - "${BIND_ADDRESS4:-127.0.0.1}:995:995"
+    volumes:
+      - "${ROOT:-./data}/certs:/certs"
+      - "${ROOT:-./data}/overrides/nginx:/overrides:ro"
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - "${ROOT:-./data}/redis:/data"
+
+  imap:
+    image: ghcr.io/mailu/dovecot:2.0
+    restart: always
+    env_file: .env
+    dns: 1.1.1.1
+    volumes:
+      - "${ROOT:-./data}/mail:/mail"
+      - "${ROOT:-./data}/overrides/dovecot:/overrides:ro"
+    depends_on:
+      - front
+
+  smtp:
+    image: ghcr.io/mailu/postfix:2.0
+    restart: always
+    env_file: .env
+    dns: 1.1.1.1
+    volumes:
+      - "${ROOT:-./data}/mailqueue:/queue"
+      - "${ROOT:-./data}/overrides/postfix:/overrides:ro"
+    depends_on:
+      - front
+
+  antispam:
+    image: ghcr.io/mailu/rspamd:2.0
+    restart: always
+    env_file: .env
+    dns: 1.1.1.1
+    volumes:
+      - "${ROOT:-./data}/filter:/var/lib/rspamd"
+      - "${ROOT:-./data}/dkim:/dkim:ro"
+      - "${ROOT:-./data}/overrides/rspamd:/etc/rspamd/override.d:ro"
+    depends_on:
+      - front
+
+  admin:
+    image: ghcr.io/mailu/admin:2.0
+    restart: always
+    env_file: .env
+    dns: 1.1.1.1
+    volumes:
+      - "${ROOT:-./data}/data:/data"
+      - "${ROOT:-./data}/dkim:/dkim"
+    depends_on:
+      - redis
+
+  webmail:
+    image: ghcr.io/mailu/webmail:2.0
+    restart: always
+    env_file: .env
+    dns: 1.1.1.1
+    volumes:
+      - "${ROOT:-./data}/webmail:/data"
+      - "${ROOT:-./data}/overrides/roundcube:/overrides:ro"
+    depends_on:
+      - imap
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${SUBNET:-192.168.203.0/24}

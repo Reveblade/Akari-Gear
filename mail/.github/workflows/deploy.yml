@@ -1,0 +1,28 @@
+# Deploy Mailu to VM on push to main
+# Required secrets: DEPLOY_HOST, DEPLOY_USER, SSH_PRIVATE_KEY
+# Optional: DEPLOY_PATH (default: ~/mail)
+name: Deploy to VM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DEPLOY_PATH
+          script: |
+            cd "${DEPLOY_PATH:-$HOME/mail}"
+            git pull
+            ./deploy.sh
+          script_stop: true
